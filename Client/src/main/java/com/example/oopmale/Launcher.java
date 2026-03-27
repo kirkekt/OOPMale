@@ -1,4 +1,4 @@
-package com.example.oopmidagi;
+package com.example.oopmale;
 
 import javafx.application.Application;
 
