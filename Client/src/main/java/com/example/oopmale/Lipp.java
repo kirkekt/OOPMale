@@ -3,7 +3,7 @@ package com.example.oopmale;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Lipp extends MaleNupp {
+public class Lipp extends Malenupp {
     private final List<List<Integer>> kaigud = new ArrayList<>();
 
     public Lipp(int x, int y, boolean onValge) {

@@ -3,7 +3,7 @@ package com.example.oopmale;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Vanker extends MaleNupp {
+public class Vanker extends Malenupp {
     private final List<List<Integer>> kaigud = new ArrayList<>();
 
     public Vanker(int x, int y, boolean onValge) {

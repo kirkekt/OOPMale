@@ -3,18 +3,17 @@ package com.example.oopmale;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Ettur extends MaleNupp {
+public class Ettur extends Malenupp {
     private final List<List<Integer>> kaigud = new ArrayList<>();
-    private final int suund;
 
     public Ettur(int x, int y, boolean onValge) {
         super(x, y, onValge);
-        if (onValge) {suund = 1;}
-        else {suund = -1;}
-        kaigud.add(List.of(suund, 0));
-        kaigud.add(List.of(2* suund, 0));
-        kaigud.add(List.of(suund, 1));
-        kaigud.add(List.of(suund, -1));
+        int suund = 1;
+        if (!onValge) suund = -1;
+        kaigud.add(List.of(0, 1 * suund));
+        kaigud.add(List.of(0, 2 * suund));
+        kaigud.add(List.of(1, 1*suund));
+        kaigud.add(List.of(-1, 1*suund));
     }
 
     @Override
