@@ -1,9 +1,11 @@
 package com.example.oopmale;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class Ratsu extends maleNupp{
-    List<List<Integer>> kaigud;
+public class Ratsu extends MaleNupp {
+    private final List<List<Integer>> kaigud = new ArrayList<>();
+
     public Ratsu(int x, int y, boolean onValge) {
         super(x, y, onValge);
         for (int i = -1; i < 2; i+=2) {
@@ -15,7 +17,7 @@ public class Ratsu extends maleNupp{
     }
 
     @Override
-    List<List<Integer>> kaiguDeltad() {
+    protected List<List<Integer>> kaiguDeltad() {
         return kaigud;
     }
 }

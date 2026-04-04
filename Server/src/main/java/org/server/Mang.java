@@ -10,6 +10,7 @@ public class Mang implements Runnable {
     private final Socket valgeSocket;
     private final Socket mustSocket;
 
+       /* ------- koodid ------- */
     private final int manguLopp = 256;
     private final int manguAlgus = 0;
     private final int valge = 1;
