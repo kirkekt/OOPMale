@@ -2,7 +2,7 @@ package com.example.oopmale;
 
 import java.util.List;
 
-public class Kuningas extends maleNupp{
+public class Kuningas extends Malenupp {
     List<List<Integer>> kaigud;
     public Kuningas(int x, int y, boolean onValge) {
         super(x, y, onValge);

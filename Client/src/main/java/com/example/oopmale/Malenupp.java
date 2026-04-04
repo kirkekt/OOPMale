@@ -2,12 +2,14 @@ package com.example.oopmale;
 
 import java.util.List;
 
-public abstract class maleNupp{
+public abstract class Malenupp {
     private int x;
     private int y;
     private boolean onValge;
+    /*
 
-    public maleNupp(int x, int y, boolean onValge) {
+     */
+    public Malenupp(int x, int y, boolean onValge) {
         this.x = x;
         this.y = y;
         this.onValge = onValge;
@@ -28,5 +30,15 @@ public abstract class maleNupp{
         return kaigud;
     }
 
+    public int getX() {
+        return x;
+    }
 
+    public int getY() {
+        return y;
+    }
+
+    public boolean isOnValge() {
+        return onValge;
+    }
 }
