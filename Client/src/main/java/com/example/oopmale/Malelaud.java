@@ -9,18 +9,18 @@ public class Malelaud {
     private List<Malenupp> mustadNupud = new ArrayList<>();
 
     public Malelaud() {
-        for (int xi = 0; xi < 8; xi++) {
-            valgedNupud.add(new Ettur(xi, 1, true));
-            mustadNupud.add(new Ettur(xi, 6, false));
+        for (int x = 0; x < 8; x++) {
+            valgedNupud.add(new Ettur(x, 1, true));
+            mustadNupud.add(new Ettur(x, 6, false));
         }
-        for (int dxi = 0; dxi <2; dxi++) {
-            valgedNupud.add(new Vanker(0 + 7*dxi, 0, true));
-            valgedNupud.add(new Ratsu(1 + 5*dxi, 0, true));
-            valgedNupud.add(new Oda(2 + 3*dxi, 0, true));
+        for (int i = 0; i <2; i++) {
+            valgedNupud.add(new Vanker(0 + 7*i, 0, true));
+            valgedNupud.add(new Ratsu(1 + 5*i, 0, true));
+            valgedNupud.add(new Oda(2 + 3*i, 0, true));
 
-            mustadNupud.add(new Vanker(0 + 7*dxi, 7, false));
-            mustadNupud.add(new Ratsu(1 + 5*dxi, 7, false));
-            mustadNupud.add(new Oda(2 + 3*dxi, 7, false));
+            mustadNupud.add(new Vanker(0 + 7*i, 7, false));
+            mustadNupud.add(new Ratsu(1 + 5*i, 7, false));
+            mustadNupud.add(new Oda(2 + 3*i, 7, false));
         }
         valgedNupud.add(new Lipp(3,0, true));
         valgedNupud.add(new Kuningas(4, 0, true));

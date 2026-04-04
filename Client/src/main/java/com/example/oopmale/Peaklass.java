@@ -9,9 +9,10 @@ import java.util.Set;
 
 public class Peaklass {
 
-    private Set<MaleNupp> lauaOlek = new HashSet<>();
-    private int[] vastaseTegevus;
     private String ipAdress = ""; //tuleb enne mängu täita
+
+
+    private int[] vastaseTegevus;
 
     public Peaklass() throws IOException {
 
@@ -19,20 +20,17 @@ public class Peaklass {
              DataInputStream in = new DataInputStream(server.getInputStream());
              DataOutputStream out = new DataOutputStream(server.getOutputStream())) {
 
-            initMalelaud();
+            Malelaud malelaud = new Malelaud();
+            boolean valge = kasValge(in);
 
-            int[] info = loeKoik(in);
-            if (info[1] != 0) {
-                throw new RuntimeException("Oodatud \"mängu algus\", saadud kood: " + info[0]);
-            }
-            boolean valge = (info[2] == 1);
 
             if (!valge) {
                 vastaseTegevus = loeKoik(in);
+                malelaud.teeKaik(vastaseTegevus[1], vastaseTegevus[2], vastaseTegevus[3], vastaseTegevus[4]);
             }
 
             while (true) {
-                //oma käigu alustamine
+                //malelaud.kaiguKatse(valge, placeholder_mangija_valik_x, placeholder_mangija_valik_y, placeholder_mangija_valik_uusx, placeholder_mangija_valik_uusy);
                 break;
             }
 
@@ -66,26 +64,11 @@ public class Peaklass {
         }
     }
 
-    private void initMalelaud() {
-
-        for (int x = 0; x < 8; x++) {
-            lauaOlek.add(new Ettur(x, 1, true));
-            lauaOlek.add(new Ettur(x, 6, false));
+    private boolean kasValge(DataInputStream in) throws IOException {
+        int[] info = loeKoik(in);
+        if (info[1] != 0) {
+            throw new RuntimeException("Oodatud \"mängu algus\", saadud kood: " + info[0]);
         }
-
-        boolean[] l = new boolean[]{true, false};
-        for (boolean b : l) {
-            int y;
-            if (b) {y = 0;}
-            else {y = 7;}
-
-            for (int i = 0; i < 2; i++) {
-                lauaOlek.add(new Vanker(7*i, y, b));
-                lauaOlek.add(new Ratsu(1+5*i, y, b));
-                lauaOlek.add(new Oda(2+3*i, y, b));
-            }
-            lauaOlek.add(new Lipp(3, y, b));
-            lauaOlek.add(new Kuningas(4, y, b));
-        }
+        return (info[2] == 1);
     }
 }
