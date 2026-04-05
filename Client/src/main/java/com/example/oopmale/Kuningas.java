@@ -1,9 +1,10 @@
 package com.example.oopmale;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Kuningas extends maleNupp{
-    List<List<Integer>> kaigud;
+    List<List<Integer>> kaigud = new ArrayList<>();
     public Kuningas(int x, int y, boolean onValge) {
         super(x, y, onValge);
         for (int i = -1; i < 2; i++) {

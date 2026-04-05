@@ -13,6 +13,18 @@ public abstract class maleNupp{
         this.onValge = onValge;
     }
 
+    public int getX() {
+        return x;
+    }
+
+    public int getY() {
+        return y;
+    }
+
+    public boolean isOnValge() {
+        return onValge;
+    }
+
     public void liiguta(int uusx, int uusy){
         this.x = uusx;
         this.y = uusy;
