@@ -1,11 +1,12 @@
 package com.example.oopmale;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class Oda extends maleNupp{
-    List<List<Integer>> kaigud;
+public class Oda extends Malenupp {
+    private final List<List<Integer>> kaigud = new ArrayList<>();
 
-    public Oda(int x, int y, boolean onValge, List<List<Integer>> kaigud) {
+    public Oda(int x, int y, boolean onValge) {
         super(x, y, onValge);
         for (int i = 1; i < 8; i++) {
             kaigud.add(List.of(i, i));
@@ -13,10 +14,10 @@ public class Oda extends maleNupp{
             kaigud.add(List.of(-i,i));
             kaigud.add(List.of(-i,-i));
         }
-
     }
+
     @Override
-    List<List<Integer>> kaiguDeltad() {
+    protected List<List<Integer>> kaiguDeltad() {
         return kaigud;
     }
 }

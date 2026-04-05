@@ -60,7 +60,7 @@ public class LauaVaade {
         return ruudustik;
     }
 
-    private ImageView getPilt(maleNupp nupp) {
+    private ImageView getPilt(Malenupp nupp) {
         String värv = nupp.isOnValge() ? "valge" : "must";
         String failiNimi = "";
 
