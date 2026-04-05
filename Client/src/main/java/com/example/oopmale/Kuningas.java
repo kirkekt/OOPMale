@@ -3,8 +3,9 @@ package com.example.oopmale;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Kuningas extends maleNupp{
-    List<List<Integer>> kaigud = new ArrayList<>();
+public class Kuningas extends Malenupp {
+    private final List<List<Integer>> kaigud = new ArrayList<>();
+
     public Kuningas(int x, int y, boolean onValge) {
         super(x, y, onValge);
         for (int i = -1; i < 2; i++) {
@@ -16,7 +17,7 @@ public class Kuningas extends maleNupp{
 
 
     @Override
-    List<List<Integer>> kaiguDeltad() {
+    protected List<List<Integer>> kaiguDeltad() {
         return kaigud;
     }
 }

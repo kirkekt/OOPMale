@@ -1,11 +1,12 @@
 package com.example.oopmale;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class Lipp extends maleNupp{
-    List<List<Integer>> kaigud;
+public class Lipp extends Malenupp {
+    private final List<List<Integer>> kaigud = new ArrayList<>();
 
-    public Lipp(int x, int y, boolean onValge, List<List<Integer>> kaigud) {
+    public Lipp(int x, int y, boolean onValge) {
         super(x, y, onValge);
         for (int i = 1; i < 8; i++) {
             kaigud.add(List.of(0, i));
@@ -19,7 +20,7 @@ public class Lipp extends maleNupp{
         }
     }
     @Override
-    List<List<Integer>> kaiguDeltad() {
+    protected List<List<Integer>> kaiguDeltad() {
         return kaigud;
     }
 }

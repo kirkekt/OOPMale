@@ -40,16 +40,4 @@ public abstract class Malenupp {
     public boolean kasAsubSiin(int x, int y) {
         return this.x == x && this.y == y;
     }
-
-    public boolean isOnValge() {
-        return onValge;
-    }
-
-    public int getX() {
-        return x;
-    }
-
-    public int getY() {
-        return y;
-    }
 }
