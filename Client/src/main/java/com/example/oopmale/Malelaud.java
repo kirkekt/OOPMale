@@ -100,4 +100,8 @@ public class Malelaud {
         if (valgeKuningas && valgeKaik || mustKuningas && !valgeKaik) return 1;
         return 0;
     }
+
+    public List<Malenupp> getKoikNupud() {
+        return koikNupud;
+    }
 }

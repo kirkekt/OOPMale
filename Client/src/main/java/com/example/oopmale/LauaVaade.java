@@ -10,16 +10,14 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 
-import java.util.List;
-
 public class LauaVaade {
     private GridPane ruudustik = new GridPane();
 
-    public LauaVaade(Laud laud) {
+    public LauaVaade(Malelaud laud) {
         ehitaLaud(laud);
     }
 
-    private void ehitaLaud(Laud laud) {
+    private void ehitaLaud(Malelaud laud) {
         for (int rida = 0; rida < 9; rida++) {
             for (int veerg = 0; veerg < 9; veerg++) {
                 if (veerg == 0 && rida == 0) {
@@ -45,15 +43,7 @@ public class LauaVaade {
                 }
             }
         }
-
-        for (int rida = 0; rida < 8; rida++) {
-            for (int veerg = 0; veerg < 8; veerg++) {
-                if (laud.getLaud()[rida][veerg] != null) {
-                    ImageView pilt = getPilt(laud.getLaud()[rida][veerg]);
-                    ruudustik.add(pilt, veerg+1, rida+1);
-                }
-            }
-        }
+                laud.getKoikNupud().forEach(malend -> {ImageView pilt = getPilt(malend); ruudustik.add(pilt, malend.getX()+1, 8-malend.getY());});
     }
 
     public GridPane getVaade() {
@@ -61,7 +51,7 @@ public class LauaVaade {
     }
 
     private ImageView getPilt(Malenupp nupp) {
-        String värv = nupp.isOnValge() ? "valge" : "must";
+        String värv = nupp.OnValge() ? "valge" : "must";
         String failiNimi = "";
 
         if (nupp instanceof Vanker) {
