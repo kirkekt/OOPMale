@@ -8,8 +8,11 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.Arrays;
 
 public class HelloApplication extends Application {
+
+    private String ipAdress = "localhost";
 
     @Override
     public void start(Stage stage) throws IOException {
@@ -20,5 +23,67 @@ public class HelloApplication extends Application {
         stage.setScene(scene);
         stage.show();
 
+        int[] vastaseTegevus;
+
+        try (Socket server = new Socket(ipAdress, 1337);
+             DataInputStream in = new DataInputStream(server.getInputStream());
+             DataOutputStream out = new DataOutputStream(server.getOutputStream())) {
+
+            boolean valge = kasValge(in, out);
+
+
+            if (valge) {
+                vastaseTegevus = loeKoik(in, out);
+                System.out.println(Arrays.toString(vastaseTegevus));
+                malelaud.teeKaik(vastaseTegevus[1], vastaseTegevus[2], vastaseTegevus[3], vastaseTegevus[4]);
+            }
+
+            int i = 0;
+            while (i < 8) {
+                //malelaud.teeKaik(click1X, click1Y, click2X, click2Y);
+                i++;
+            }
+
+            System.out.println("mäng läbi");
+
+        }
+
+        lauaVaade.uuendaLaud();
+    }
+
+    /**
+     * Praegu esitatakse info kujul int[] [sõnumi pikkus, kood, sisu], kus sõnumi pikkus on sisu pikkus+1, kood kood nullist kuni 256ni, mis ütleb packeti sisu
+     * @param in võtab DataInputStreami kust lugeda
+     * @return tagastab int[], kus esimesel kohal on kood ja ülejäänu on sisu
+     * @throws IOException, kui ühendust ei leita
+     */
+    public int[] loeKoik(DataInputStream in, DataOutputStream out) throws IOException {
+        int pikkus = in.readInt();
+        int[] tagastus = new int[pikkus];
+
+        for (int i = 0; i < pikkus; i++) {
+            tagastus[i] = in.readInt();
+        }
+        System.out.println(Arrays.toString(tagastus));
+        out.writeInt(1);
+        return tagastus;
+    }
+
+    public void saadaTegevus(DataOutputStream out, int kood, int[] sisu) throws IOException {
+        out.writeInt(1+ sisu.length);
+        out.writeInt(kood);
+        for (int i : sisu) {
+            out.writeInt(i);
+        }
+    }
+
+
+
+    private boolean kasValge(DataInputStream in, DataOutputStream out) throws IOException {
+        int[] info = loeKoik(in, out);
+        if (info[0] != 0) {
+            throw new RuntimeException("Oodatud \"mängu algus\", saadud kood: " + info[0]);
+        }
+        return (info[1] == 1);
     }
 }

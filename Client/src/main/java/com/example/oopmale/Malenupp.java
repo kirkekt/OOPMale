@@ -14,8 +14,8 @@ public abstract class Malenupp {
     }
 
     public void liiguta(int uusx, int uusy){
-        this.x = uusx;
-        this.y = uusy;
+        this.x = uusx-1;
+        this.y = 9-uusy;
     }
     protected abstract List<List<Integer>> kaiguDeltad();
 

@@ -8,7 +8,7 @@ import java.net.Socket;
 public class Mang implements Runnable {
 
     private final Socket valgeSocket;
-    private final Socket mustSocket;
+    //private final Socket mustSocket;
 
        /* ------- koodid ------- */
     private final int manguLopp = 256;
@@ -17,20 +17,20 @@ public class Mang implements Runnable {
     private final int must = 2;
 
 
-    public Mang(Socket valge, Socket must) {
+    public Mang(Socket valge/*, Socket must*/) {
         this.valgeSocket = valge;
-        this.mustSocket = must;
+        //this.mustSocket = must;
     }
 
     /**
      * Annab mõlemale kliendile teada mis värv nad on
      * @param valgeOut esimesena liitunud klient on valge
-     * @param mustOut teisena liitunud klient on must
+     * teisena liitunud klient on must
      */
-    private void init(DataOutputStream valgeOut, DataOutputStream mustOut) throws IOException {
-        mustOut.writeInt(2);
+    private void init(DataOutputStream valgeOut/*, DataOutputStream mustOut*/) throws IOException {
+        /*mustOut.writeInt(2);
         mustOut.writeInt(manguAlgus);
-        mustOut.writeInt(must);
+        mustOut.writeInt(must);*/
 
         valgeOut.writeInt(2);
         valgeOut.writeInt(manguAlgus);
@@ -70,20 +70,20 @@ public class Mang implements Runnable {
     public void run() {
         System.out.println("Mäng algas...");
 
-        try (DataInputStream mustIn = new DataInputStream(mustSocket.getInputStream());
-             DataOutputStream mustOut = new DataOutputStream(mustSocket.getOutputStream());
+        try (/*DataInputStream mustIn = new DataInputStream(mustSocket.getInputStream());
+             DataOutputStream mustOut = new DataOutputStream(mustSocket.getOutputStream());*/
              DataInputStream valgeIn = new DataInputStream(valgeSocket.getInputStream());
              DataOutputStream valgeOut = new DataOutputStream(valgeSocket.getOutputStream())) {
 
-            init(valgeOut, mustOut);
+            init(valgeOut/*, mustOut*/);
 
             while (true) {
                 //valge käik mustale
-                int[] valgeKaik = kaiguInfo(valgeIn);
+                //int[] valgeKaik = kaiguInfo(valgeIn);
 
                 System.out.println("Valge käis");
 
-                if (valgeKaik[1] == manguLopp) {
+                /*if (valgeKaik[1] == manguLopp) {
                     teavitaEtManguLopp(valgeKaik[2], mustOut);
                     break;
                 }
@@ -105,7 +105,17 @@ public class Mang implements Runnable {
 
                 for (int i : mustaKaik) {
                     valgeOut.writeInt(i);
-                }
+                }*/
+
+                System.out.println(valgeIn.readInt());
+
+                valgeOut.writeInt(5);
+                valgeOut.writeInt(1);
+                valgeOut.writeInt(7);
+                valgeOut.writeInt(6);
+                valgeOut.writeInt(5);
+                valgeOut.writeInt(5);
+                break;
             }
             System.out.println("Mäng läbi");
         }

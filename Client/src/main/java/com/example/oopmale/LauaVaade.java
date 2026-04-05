@@ -12,12 +12,14 @@ import javafx.scene.shape.Rectangle;
 
 public class LauaVaade {
     private GridPane ruudustik = new GridPane();
+    private Malelaud malelaud;
 
     public LauaVaade(Malelaud laud) {
-        ehitaLaud(laud);
+        malelaud = laud;
+        uuendaLaud();
     }
 
-    private void ehitaLaud(Malelaud laud) {
+    private void ehitaLaud() {
         for (int rida = 0; rida < 9; rida++) {
             for (int veerg = 0; veerg < 9; veerg++) {
                 if (veerg == 0 && rida == 0) {
@@ -43,7 +45,6 @@ public class LauaVaade {
                 }
             }
         }
-                laud.getKoikNupud().forEach(malend -> {ImageView pilt = getPilt(malend); ruudustik.add(pilt, malend.getX()+1, 8-malend.getY());});
     }
 
     public GridPane getVaade() {
@@ -73,5 +74,10 @@ public class LauaVaade {
         GridPane.setHalignment(vaade, HPos.CENTER);
         GridPane.setValignment(vaade, VPos.CENTER);
         return vaade;
+    }
+
+    public void uuendaLaud() {
+        ehitaLaud();
+        malelaud.getKoikNupud().forEach(malend -> ruudustik.add(getPilt(malend), malend.getX()+1, 8-malend.getY()));
     }
 }

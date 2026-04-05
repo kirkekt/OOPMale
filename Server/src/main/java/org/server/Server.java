@@ -11,8 +11,8 @@ public class Server {
             System.out.println("now listening on :1337");
             while (true) {
                 Socket valge = ss.accept();
-                Socket must = ss.accept();
-                new Thread(new Mang(valge, must)).start();
+                //Socket must = ss.accept();
+                new Thread(new Mang(valge/*, must*/)).start();
             }
         }
     }
