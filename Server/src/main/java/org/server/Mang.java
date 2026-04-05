@@ -113,7 +113,7 @@ public class Mang implements Runnable {
                 valgeOut.writeInt(1);
                 valgeOut.writeInt(7);
                 valgeOut.writeInt(6);
-                valgeOut.writeInt(5);
+                valgeOut.writeInt(7);
                 valgeOut.writeInt(5);
                 break;
             }

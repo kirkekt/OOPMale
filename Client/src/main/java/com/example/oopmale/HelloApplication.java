@@ -41,6 +41,7 @@ public class HelloApplication extends Application {
             int i = 0;
             while (i < 8) {
                 //malelaud.teeKaik(click1X, click1Y, click2X, click2Y);
+                lauaVaade.uuendaLaud();
                 i++;
             }
 
@@ -48,7 +49,7 @@ public class HelloApplication extends Application {
 
         }
 
-        lauaVaade.uuendaLaud();
+
     }
 
     /**
