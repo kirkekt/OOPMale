@@ -17,7 +17,7 @@ public class HelloApplication extends Application {
     @Override
     public void start(Stage stage) throws IOException {
         Malelaud malelaud = new Malelaud();
-        LauaVaade lauaVaade = new LauaVaade(malelaud);
+        LauaVaade lauaVaade = new LauaVaade(malelaud, false);
         Scene scene = new Scene(lauaVaade.getVaade(), 700, 700);
         stage.setTitle("Male");
         stage.setScene(scene);

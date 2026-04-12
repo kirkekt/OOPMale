@@ -17,7 +17,10 @@ public class LauaVaade {
     private Integer esimeneX = null;
     private Integer esimeneY = null;
 
-    public LauaVaade(Malelaud laud) {
+    private boolean onValge;
+
+    public LauaVaade(Malelaud laud, boolean onValge) {
+        this.onValge = onValge;
         malelaud = laud;
         uuendaLaud();
     }
@@ -58,6 +61,14 @@ public class LauaVaade {
     private void ehitaLaud() {
         for (int rida = 0; rida < 9; rida++) {
             for (int veerg = 0; veerg < 9; veerg++) {
+
+                int reaNumber;
+                if (onValge) {
+                    reaNumber = 9 - rida;
+                } else {
+                    reaNumber = rida;
+                }
+
                 if (veerg == 0 && rida == 0) {
                     // top-left empty corner
                 } else if (rida == 0) {
@@ -66,7 +77,7 @@ public class LauaVaade {
                     täht.setAlignment(Pos.CENTER);
                     ruudustik.add(täht, veerg, rida);
                 } else if (veerg == 0) {
-                    Label number = new Label(Integer.toString(9 - rida));
+                    Label number = new Label(Integer.toString(reaNumber));
                     number.setMinWidth(30);
                     number.setMaxWidth(Double.MAX_VALUE);
                     number.setAlignment(Pos.CENTER);
@@ -81,7 +92,8 @@ public class LauaVaade {
                     }
 
                     int x = veerg - 1;
-                    int y = 8 - rida;
+                    int y = reaNumber - 1;
+
 
                     ruut.setOnMouseClicked(e -> ruutKlikiti(x, y));
 
@@ -124,8 +136,9 @@ public class LauaVaade {
     public void uuendaLaud() {
         ruudustik.getChildren().clear();
         ehitaLaud();
+
         malelaud.getKoikNupud().forEach(
-                malend -> ruudustik.add(getPilt(malend), malend.getX() + 1, 8 - malend.getY())
+                malend -> ruudustik.add(getPilt(malend), malend.getX() + 1, onValge ? 8 - malend.getY() : malend.getY() + 1)
         );
     }
 }
