@@ -22,26 +22,37 @@ public class LauaVaade {
         uuendaLaud();
     }
 
-    private void ruutKlikiti(int x, int y) {
+    private void nuppKlikiti(Malenupp nupp) {
+        int x = nupp.getX();
+        int y = nupp.getY();
+
         if (esimeneX == null) {
             esimeneX = x;
             esimeneY = y;
             System.out.println("Esimene klikk: " + x + ", " + y);
         } else {
-            int vanaX = esimeneX;
-            int vanaY = esimeneY;
-            int uusX = x;
-            int uusY = y;
-
-            System.out.println("Teine klikk: " + uusX + ", " + uusY);
-            System.out.println("Teen käigu: " + vanaX + "," + vanaY + " -> " + uusX + "," + uusY);
-
-            malelaud.teeKaik(vanaX, vanaY, uusX, uusY);
-            esimeneX = null;
-            esimeneY = null;
-
-            uuendaLaud();
+            teeTeineKlikk(x, y);
         }
+    }
+
+    private void ruutKlikiti(int x, int y) {
+        if (esimeneX != null) {
+            teeTeineKlikk(x, y);
+        }
+    }
+
+    private void teeTeineKlikk(int uusX, int uusY) {
+        int vanaX = esimeneX;
+        int vanaY = esimeneY;
+
+        System.out.println("Teine klikk: " + uusX + ", " + uusY);
+        System.out.println("Teen käigu: " + vanaX + "," + vanaY + " -> " + uusX + "," + uusY);
+
+        malelaud.teeKaik(vanaX, vanaY, uusX, uusY);
+        esimeneX = null;
+        esimeneY = null;
+
+        uuendaLaud();
     }
 
     private void ehitaLaud() {
@@ -106,6 +117,7 @@ public class LauaVaade {
         ImageView vaade = new ImageView(pilt);
         GridPane.setHalignment(vaade, HPos.CENTER);
         GridPane.setValignment(vaade, VPos.CENTER);
+        vaade.setOnMouseClicked(e -> nuppKlikiti(nupp));
         return vaade;
     }
 
