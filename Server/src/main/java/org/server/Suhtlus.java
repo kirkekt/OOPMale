@@ -21,56 +21,25 @@ public class Suhtlus {
     public static final int viik = 0;
     public static final int võit = 1;
 
-    /**
-     * Annab mõlemale kliendile teada mis värv nad on
-     * @param valgeOut esimesena liitunud klient on valge
-     * teisena liitunud klient on must
-     */
+
+    // SAATMISED
     public static void init(DataOutputStream valgeOut, DataInputStream valgeIn, DataOutputStream mustOut, DataInputStream mustIn) throws IOException {
         mustOut.writeInt(2);
         mustOut.writeInt(manguAlgus);
         mustOut.writeInt(must);
-        mustIn.readInt();
+        if (mustIn.readInt() != 1) throw new RuntimeException("Ei saanud confirmation koodi");
 
 
         valgeOut.writeInt(2);
         valgeOut.writeInt(manguAlgus);
         valgeOut.writeInt(valge);
-        valgeIn.readInt();
+        if (valgeIn.readInt() != 1) throw new RuntimeException("Ei saanud confirmation koodi");
     }
 
-    /**
-     * Annab edasi teavituse mängu lõpust
-     * @param tulemus -1 kui teavitaja kaotas või 0 kui jäi viiki
-     * @param out klient, kellele teavitada
-     */
     public static void teavitaEtManguLopp(int tulemus, DataOutputStream out) throws IOException {
         out.writeInt(2);
         out.writeInt(manguLopp);
         out.writeInt(-tulemus);
-    }
-
-    /**
-     * Loeb sisse kogu kliendi saadetud käigu info
-     * @param in klient kelle käiku lugeda
-     * @return tagastab array kogu käigu kohta käiva infoga
-     */
-    public static int[] loeKoik(DataInputStream in) throws IOException {
-        int pikkus = in.readInt();
-        System.out.println("Sain:");
-        System.out.println("pikkus - " + pikkus);
-        int[] tagastus = new int[pikkus];
-
-        for (int i = 0; i < pikkus; i++) {
-            tagastus[i] = in.readInt();
-        }
-        System.out.println("sisu - " + Arrays.toString(tagastus));
-        return tagastus;
-    }
-
-    public static void saadaKood(DataOutputStream out, int kood) throws IOException {
-        out.writeInt(1);
-        out.writeInt(kood);
     }
 
     public static void saadaInfo(DataOutputStream out, DataInputStream in, int kood, int[] sisu) throws IOException {
@@ -81,10 +50,41 @@ public class Suhtlus {
         for (int i : sisu) {
             out.writeInt(i);
         }
-        in.readInt();
+        if (in.readInt() != 1) throw new RuntimeException("Ei saanud õiget confirmation koodi");
     }
 
-    public static int[] eemaldaKood(int[] sisu) {
+    public static void saadaKaiguInfo(DataOutputStream tegijaOut, DataOutputStream out, DataInputStream in, int[] kaik) throws IOException {
+        saadaInfo(out, in, kaiguKood, kaik);
+        tegijaOut.writeInt(kaikOk);
+    }
+
+
+    // LUGEMISED
+    public static int[] loeKoik(DataInputStream in, DataOutputStream out) throws IOException {
+        int pikkus = in.readInt();
+        int[] tagastus = new int[pikkus];
+
+        for (int i = 0; i < pikkus; i++) {
+            tagastus[i] = in.readInt();
+        }
+        System.out.println("Sain: pikkus - " + pikkus + ", sisu - " + Arrays.toString(tagastus));
+
+        out.writeInt(1);
+        return tagastus;
+    }
+
+    public static int[] loeKaik(DataInputStream tegijaIn, DataOutputStream tegijaOut, DataOutputStream vastaneOut) throws IOException {
+        int[] sisse = loeKoik(tegijaIn, tegijaOut);
+        if (sisse[0] == manguLopp) {
+            teavitaEtManguLopp(sisse[1], vastaneOut);
+            return new int[]{0};
+        }
+        return kustutaKood(sisse);
+    }
+
+
+    // ABI
+    public static int[] kustutaKood(int[] sisu) {
         int[] tagastus = new int[sisu.length-1];
         for (int i = 1; i < sisu.length; i++) {
             tagastus[i-1] = sisu[i];

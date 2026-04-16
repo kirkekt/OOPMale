@@ -1,5 +1,7 @@
 package com.example.oopmale;
 
+import javafx.application.Platform;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -55,7 +57,7 @@ public class Malelaud {
                 malenupp.liiguta(uusX, uusY);
             }
         }
-        lauaVaade.uuendaLaud();
+        Platform.runLater(lauaVaade::uuendaLaud);
     }
 
     public List<Nupp> getKoikNupud() {

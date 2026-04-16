@@ -3,7 +3,6 @@ package org.server;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.net.Socket;
-import java.util.Arrays;
 
 public class Mang implements Runnable {
 
@@ -19,21 +18,26 @@ public class Mang implements Runnable {
 
     @Override
     public void run() {
+        // Tekitab malelaua
         Malelaud malelaud = new Malelaud();
 
+        // Avab suhtlus-Streamid
         try (DataInputStream mustIn = new DataInputStream(mustSocket.getInputStream());
              DataOutputStream mustOut = new DataOutputStream(mustSocket.getOutputStream());
              DataInputStream valgeIn = new DataInputStream(valgeSocket.getInputStream());
              DataOutputStream valgeOut = new DataOutputStream(valgeSocket.getOutputStream())) {
 
+            // Teavitab mõlemat mängijat
             Suhtlus.init(valgeOut, valgeIn, mustOut, mustIn);
 
+            // Valmistab ette muutujad
             boolean valgeKord = true;
             DataInputStream kaiguTegijaIn;
             DataOutputStream kaiguTegijaOut;
             DataInputStream vastaneIn;
             DataOutputStream vastaneOut;
 
+            // Algatab mängu loop-i
             while (true) {
                 if (valgeKord) {
                     kaiguTegijaIn = valgeIn;
@@ -48,19 +52,16 @@ public class Mang implements Runnable {
                     vastaneOut = valgeOut;
                 }
 
-                int[] kaik = Suhtlus.loeKoik(kaiguTegijaIn);
+                int[] kaik = Suhtlus.loeKaik(kaiguTegijaIn, kaiguTegijaOut, vastaneOut);
 
                 if (kaik[0] == Suhtlus.manguLopp) {
                     Suhtlus.teavitaEtManguLopp(kaik[1], vastaneOut);
                     break;
                 }
 
-                kaik = Suhtlus.eemaldaKood(kaik);
                 if (malelaud.kasLubatudKaik(valgeKord, kaik)) {
                     malelaud.teeKaik(kaik);
-                    Suhtlus.saadaInfo(vastaneOut, vastaneIn, Suhtlus.kaiguKood, kaik);
-
-                    kaiguTegijaOut.writeInt(Suhtlus.kaikOk);
+                    Suhtlus.saadaKaiguInfo(kaiguTegijaOut, vastaneOut, vastaneIn, kaik);
                     valgeKord = !valgeKord;
                 }
                 else {
