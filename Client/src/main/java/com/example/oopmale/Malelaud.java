@@ -41,19 +41,27 @@ public class Malelaud {
      * @return
      */
     public boolean kaiguKatse(boolean valgeKaik, int vanaX, int vanaY, int uusX, int uusY){
+        Malenupp liigutatavNupp = null;
+        Malenupp sihtNupp = null;
+
         for (Malenupp malenupp : koikNupud) {
-            if (!(malenupp.kasAsubSiin(vanaX, vanaY) && malenupp.onValge() == valgeKaik)){
-                continue;
+            if (malenupp.kasAsubSiin(vanaX, vanaY)) {
+                liigutatavNupp = malenupp;
+            } else if (malenupp.kasAsubSiin(uusX, uusY)) {
+                sihtNupp = malenupp;
             }
-            if (!malenupp.kaiguDeltad().contains(List.of(uusX-vanaX, uusY-vanaY))){
-                continue;
-            }
-            if (malenupp.kasAsubSiin(uusX, uusY) && malenupp.onValge() == valgeKaik){
-                return false;
-            }
-            return true;
         }
-        return false;
+
+       if (liigutatavNupp == null) {
+           return false;
+       } else if (liigutatavNupp.onValge() != valgeKaik) {
+           return false;
+       } else if (!liigutatavNupp.kaiguDeltad().contains(List.of(uusX-vanaX, uusY-vanaY))) {
+           return false;
+       } else if (sihtNupp != null && sihtNupp.onValge() == valgeKaik) {
+           return false;
+       }
+       return true;
     }
 
     /**
