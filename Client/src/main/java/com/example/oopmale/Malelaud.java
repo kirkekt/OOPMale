@@ -8,6 +8,8 @@ public class Malelaud {
     private List<Malenupp> valgedNupud = new ArrayList<>();
     private List<Malenupp> mustadNupud = new ArrayList<>();
 
+    private boolean onValgeKäik = true;
+
     public Malelaud() {
         for (int x = 0; x < 8; x++) {
             valgedNupud.add(new Ettur(x, 1, true));
@@ -33,14 +35,13 @@ public class Malelaud {
     /**
      * vaatab, kas käik, mida üritatakse teha on võimalik. Hetkel ta lihtsalt vaatab,
      * kas üritatakse liigutada mingit nuppu ja et liigutatav nupp sama värvi nupu ära ei võtaks.
-     * @param valgeKaik
      * @param vanaX
      * @param vanaY
      * @param uusX
      * @param uusY
      * @return
      */
-    public boolean kaiguKatse(boolean valgeKaik, int vanaX, int vanaY, int uusX, int uusY){
+    public boolean kaiguKatse(int vanaX, int vanaY, int uusX, int uusY){
         Malenupp liigutatavNupp = null;
         Malenupp sihtNupp = null;
 
@@ -54,11 +55,11 @@ public class Malelaud {
 
        if (liigutatavNupp == null) {
            return false;
-       } else if (liigutatavNupp.onValge() != valgeKaik) {
+       } else if (liigutatavNupp.onValge() != onValgeKäik) {
            return false;
        } else if (!liigutatavNupp.kaiguDeltad().contains(List.of(uusX-vanaX, uusY-vanaY))) {
            return false;
-       } else if (sihtNupp != null && sihtNupp.onValge() == valgeKaik) {
+       } else if (sihtNupp != null && sihtNupp.onValge() == onValgeKäik) {
            return false;
        }
        return true;
@@ -88,6 +89,8 @@ public class Malelaud {
                 malenupp.liiguta(uusX, uusY);
             }
         }
+
+        onValgeKäik = !onValgeKäik;
     }
 
     /**

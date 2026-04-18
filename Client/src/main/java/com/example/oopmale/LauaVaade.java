@@ -51,10 +51,11 @@ public class LauaVaade {
         System.out.println("Teine klikk: " + uusX + ", " + uusY);
         System.out.println("Teen käigu: " + vanaX + "," + vanaY + " -> " + uusX + "," + uusY);
 
-        malelaud.teeKaik(vanaX, vanaY, uusX, uusY);
+        if (malelaud.kaiguKatse(vanaX, vanaY, uusX, uusY)) {
+            malelaud.teeKaik(vanaX, vanaY, uusX, uusY);
+        }
         esimeneX = null;
         esimeneY = null;
-
         uuendaLaud();
     }
 

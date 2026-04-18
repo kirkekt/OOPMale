@@ -16,13 +16,6 @@ public class HelloApplication extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {
-        Malelaud malelaud = new Malelaud();
-        LauaVaade lauaVaade = new LauaVaade(malelaud, false);
-        Scene scene = new Scene(lauaVaade.getVaade(), 700, 700);
-        stage.setTitle("Male");
-        stage.setScene(scene);
-        stage.show();
-
         int[] vastaseTegevus;
 
         try (Socket server = new Socket(ipAdress, 1337);
@@ -31,6 +24,12 @@ public class HelloApplication extends Application {
 
             boolean valge = kasValge(in, out);
 
+            Malelaud malelaud = new Malelaud();
+            LauaVaade lauaVaade = new LauaVaade(malelaud, valge);
+            Scene scene = new Scene(lauaVaade.getVaade(), 700, 700);
+            stage.setTitle("Male");
+            stage.setScene(scene);
+            stage.show();
 
             if (valge) {
                 vastaseTegevus = loeKoik(in, out);
@@ -46,10 +45,7 @@ public class HelloApplication extends Application {
             }
 
             System.out.println("mäng läbi");
-
         }
-
-
     }
 
     /**
@@ -77,8 +73,6 @@ public class HelloApplication extends Application {
             out.writeInt(i);
         }
     }
-
-
 
     private boolean kasValge(DataInputStream in, DataOutputStream out) throws IOException {
         int[] info = loeKoik(in, out);
