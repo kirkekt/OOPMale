@@ -1,4 +1,4 @@
-package com.example.oopmale;
+package org.server;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,4 +1,4 @@
-package com.example.oopmale;
+package org.server;
 
 import java.util.List;
 
@@ -26,10 +26,10 @@ public abstract class Malenupp {
             deltad.set(1,deltad.get(1)+y);
         }
 
-        kaigud.removeIf(deltad ->  deltad.getFirst() < 0  // eemaldab kõik käigud, mis läheksid lauast välja
-                || deltad.getFirst() > 7
-                || deltad.getLast() < 0
-                || deltad.getLast() > 7);
+        kaigud.removeIf(deltad ->  deltad.get(1) < 0  // eemaldab kõik käigud, mis läheksid lauast välja
+                || deltad.get(1) > 7
+                || deltad.get(deltad.size()-1) < 0
+                || deltad.get(deltad.size()-1) > 7);
 
         return kaigud;
     }

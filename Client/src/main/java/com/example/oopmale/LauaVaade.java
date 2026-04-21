@@ -10,22 +10,32 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.Socket;
+import java.net.UnknownHostException;
+import java.util.concurrent.BlockingQueue;
+
 public class LauaVaade {
     private GridPane ruudustik = new GridPane();
     private Malelaud malelaud;
+    private BlockingQueue<int[]> kaigud;
 
     private Integer esimeneX = null;
     private Integer esimeneY = null;
 
     private boolean onValge;
 
-    public LauaVaade(Malelaud laud, boolean onValge) {
+    public LauaVaade(Malelaud laud, boolean onValge, BlockingQueue<int[]> kaigud) {
         this.onValge = onValge;
+        this.kaigud = kaigud;
         malelaud = laud;
         uuendaLaud();
     }
 
-    private void nuppKlikiti(Malenupp nupp) {
+    private void nuppKlikiti(Nupp nupp) {
         int x = nupp.getX();
         int y = nupp.getY();
 
@@ -45,18 +55,14 @@ public class LauaVaade {
     }
 
     private void teeTeineKlikk(int uusX, int uusY) {
-        int vanaX = esimeneX;
-        int vanaY = esimeneY;
+
+        try {
+            kaigud.put(new int[]{esimeneX, esimeneY, uusX, uusY});
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
 
         System.out.println("Teine klikk: " + uusX + ", " + uusY);
-        System.out.println("Teen käigu: " + vanaX + "," + vanaY + " -> " + uusX + "," + uusY);
-
-        if (malelaud.kaiguKatse(vanaX, vanaY, uusX, uusY)) {
-            malelaud.teeKaik(vanaX, vanaY, uusX, uusY);
-        }
-        esimeneX = null;
-        esimeneY = null;
-        uuendaLaud();
     }
 
     private void ehitaLaud() {
@@ -108,23 +114,9 @@ public class LauaVaade {
         return ruudustik;
     }
 
-    private ImageView getPilt(Malenupp nupp) {
-        String värv = nupp.OnValge() ? "valge" : "must";
-        String failiNimi = "";
-
-        if (nupp instanceof Vanker) {
-            failiNimi = "vanker";
-        } else if (nupp instanceof Ratsu) {
-            failiNimi = "ratsu";
-        } else if (nupp instanceof Oda) {
-            failiNimi = "oda";
-        } else if (nupp instanceof Lipp) {
-            failiNimi = "lipp";
-        } else if (nupp instanceof Kuningas) {
-            failiNimi = "kuningas";
-        } else if (nupp instanceof Ettur) {
-            failiNimi = "ettur";
-        }
+    private ImageView getPilt(Nupp nupp) {
+        String värv = nupp.onValge() ? "valge" : "must";
+        String failiNimi = nupp.getMalend();
 
         Image pilt = new Image(getClass().getResourceAsStream("/pildid/" + värv + "/" + failiNimi + ".png"));
         ImageView vaade = new ImageView(pilt);
@@ -141,5 +133,10 @@ public class LauaVaade {
         malelaud.getKoikNupud().forEach(
                 malend -> ruudustik.add(getPilt(malend), malend.getX() + 1, onValge ? 8 - malend.getY() : malend.getY() + 1)
         );
+    }
+
+    public void klikidReset() {
+        esimeneX = null;
+        esimeneY = null;
     }
 }

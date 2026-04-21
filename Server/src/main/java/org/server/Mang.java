@@ -2,125 +2,76 @@ package org.server;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.IOException;
 import java.net.Socket;
 
 public class Mang implements Runnable {
 
     private final Socket valgeSocket;
-    //private final Socket mustSocket;
-
-       /* ------- koodid ------- */
-    private final int manguLopp = 256;
-    private final int manguAlgus = 0;
-    private final int valge = 1;
-    private final int must = 2;
+    private final Socket mustSocket;
 
 
-    public Mang(Socket valge/*, Socket must*/) {
+    public Mang(Socket valge, Socket must) {
         this.valgeSocket = valge;
-        //this.mustSocket = must;
-    }
-
-    /**
-     * Annab mõlemale kliendile teada mis värv nad on
-     * @param valgeOut esimesena liitunud klient on valge
-     * teisena liitunud klient on must
-     */
-    private void init(DataOutputStream valgeOut/*, DataOutputStream mustOut*/) throws IOException {
-        /*mustOut.writeInt(2);
-        mustOut.writeInt(manguAlgus);
-        mustOut.writeInt(must);*/
-
-        valgeOut.writeInt(2);
-        valgeOut.writeInt(manguAlgus);
-        valgeOut.writeInt(valge);
-    }
-
-    /**
-     * Annab edasi teavituse mängu lõpust
-     * @param tulemus -1 kui teavitaja kaotas või 0 kui jäi viiki
-     * @param out klient, kellele teavitada
-     */
-    private void teavitaEtManguLopp(int tulemus, DataOutputStream out) throws IOException {
-        out.writeInt(2);
-        out.writeInt(manguLopp);
-        out.writeInt(tulemus);
-    }
-
-    /**
-     * Loeb sisse kogu kliendi saadetud käigu info
-     * @param in klient kelle käiku lugeda
-     * @return tagastab array kogu käigu kohta käiva infoga
-     */
-    private int[] kaiguInfo(DataInputStream in) throws IOException {
-        int pikkus = in.readInt();
-        int[] tagastus = new int[pikkus + 1];
-        tagastus[0] = pikkus;
-
-        for (int i = 0; i < pikkus; i++) {
-            tagastus[i+1] = in.readInt();
-        }
-
-        return tagastus;
+        this.mustSocket = must;
     }
 
 
     @Override
     public void run() {
-        System.out.println("Mäng algas...");
+        // Tekitab malelaua
+        Malelaud malelaud = new Malelaud();
 
-        try (/*DataInputStream mustIn = new DataInputStream(mustSocket.getInputStream());
-             DataOutputStream mustOut = new DataOutputStream(mustSocket.getOutputStream());*/
+        // Avab suhtlus-Streamid
+        try (DataInputStream mustIn = new DataInputStream(mustSocket.getInputStream());
+             DataOutputStream mustOut = new DataOutputStream(mustSocket.getOutputStream());
              DataInputStream valgeIn = new DataInputStream(valgeSocket.getInputStream());
              DataOutputStream valgeOut = new DataOutputStream(valgeSocket.getOutputStream())) {
 
-            init(valgeOut/*, mustOut*/);
+            // Teavitab mõlemat mängijat
+            Suhtlus.init(valgeOut, valgeIn, mustOut, mustIn);
 
+            // Valmistab ette muutujad
+            boolean valgeKord = true;
+            DataInputStream kaiguTegijaIn;
+            DataOutputStream kaiguTegijaOut;
+            DataInputStream vastaneIn;
+            DataOutputStream vastaneOut;
+
+            // Algatab mängu loop-i
             while (true) {
-                //valge käik mustale
-                //int[] valgeKaik = kaiguInfo(valgeIn);
+                if (valgeKord) {
+                    kaiguTegijaIn = valgeIn;
+                    kaiguTegijaOut = valgeOut;
+                    vastaneIn = mustIn;
+                    vastaneOut = mustOut;
+                }
+                else {
+                    kaiguTegijaIn = mustIn;
+                    kaiguTegijaOut = mustOut;
+                    vastaneIn = valgeIn;
+                    vastaneOut = valgeOut;
+                }
 
-                System.out.println("Valge käis");
+                int[] kaik = Suhtlus.loeKaik(kaiguTegijaIn, kaiguTegijaOut, vastaneOut);
 
-                /*if (valgeKaik[1] == manguLopp) {
-                    teavitaEtManguLopp(valgeKaik[2], mustOut);
+                if (kaik[0] == Suhtlus.manguLopp) {
+                    Suhtlus.teavitaEtManguLopp(kaik[1], vastaneOut);
                     break;
                 }
 
-                for (int i : valgeKaik) {
-                    mustOut.writeInt(i);
+                if (malelaud.kasLubatudKaik(valgeKord, kaik)) {
+                    malelaud.teeKaik(kaik);
+                    Suhtlus.saadaKaiguInfo(kaiguTegijaOut, vastaneOut, vastaneIn, kaik);
+                    valgeKord = !valgeKord;
                 }
-
-
-                //musta käik valgele
-                int[] mustaKaik = kaiguInfo(mustIn);
-
-                System.out.println("Must käis");
-
-                if (mustaKaik[1] == manguLopp) {
-                    teavitaEtManguLopp(mustaKaik[2], valgeOut);
-                    break;
+                else {
+                    kaiguTegijaOut.writeInt(Suhtlus.illegaalneKaik);
                 }
-
-                for (int i : mustaKaik) {
-                    valgeOut.writeInt(i);
-                }*/
-
-                System.out.println(valgeIn.readInt());
-
-                valgeOut.writeInt(5);
-                valgeOut.writeInt(1);
-                valgeOut.writeInt(7);
-                valgeOut.writeInt(6);
-                valgeOut.writeInt(7);
-                valgeOut.writeInt(5);
-                break;
             }
             System.out.println("Mäng läbi");
         }
         catch (Exception e) {
-            throw new RuntimeException();
+            throw new RuntimeException(e);
         }
     }
 }

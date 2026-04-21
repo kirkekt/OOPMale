@@ -1,79 +1,49 @@
 package com.example.oopmale;
 
+import javafx.application.Platform;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class Malelaud {
-    private List<Malenupp> koikNupud = new ArrayList<>();
-    private List<Malenupp> valgedNupud = new ArrayList<>();
-    private List<Malenupp> mustadNupud = new ArrayList<>();
+    private List<Nupp> koikNupud = new ArrayList<>();
+    private List<Nupp> valgedNupud = new ArrayList<>();
+    private List<Nupp> mustadNupud = new ArrayList<>();
 
     private boolean onValgeKäik = true;
 
     public Malelaud() {
         for (int x = 0; x < 8; x++) {
-            valgedNupud.add(new Ettur(x, 1, true));
-            mustadNupud.add(new Ettur(x, 6, false));
+            valgedNupud.add(new Nupp(x, 1, true, "ettur"));
+            mustadNupud.add(new Nupp(x, 6, false, "ettur"));
         }
         for (int i = 0; i <2; i++) {
-            valgedNupud.add(new Vanker(0 + 7*i, 0, true));
-            valgedNupud.add(new Ratsu(1 + 5*i, 0, true));
-            valgedNupud.add(new Oda(2 + 3*i, 0, true));
+            valgedNupud.add(new Nupp(0 + 7*i, 0, true, "vanker"));
+            valgedNupud.add(new Nupp(1 + 5*i, 0, true, "ratsu"));
+            valgedNupud.add(new Nupp(2 + 3*i, 0, true, "oda"));
 
-            mustadNupud.add(new Vanker(0 + 7*i, 7, false));
-            mustadNupud.add(new Ratsu(1 + 5*i, 7, false));
-            mustadNupud.add(new Oda(2 + 3*i, 7, false));
+            mustadNupud.add(new Nupp(0 + 7*i, 7, false, "vanker"));
+            mustadNupud.add(new Nupp(1 + 5*i, 7, false, "ratsu"));
+            mustadNupud.add(new Nupp(2 + 3*i, 7, false, "oda"));
         }
-        valgedNupud.add(new Lipp(3,0, true));
-        valgedNupud.add(new Kuningas(4, 0, true));
-        mustadNupud.add(new Lipp(3, 7, false));
-        mustadNupud.add(new Kuningas(4, 7, false));
+        valgedNupud.add(new Nupp(3,0, true, "lipp"));
+        valgedNupud.add(new Nupp(4, 0, true, "kuningas"));
+        mustadNupud.add(new Nupp(3, 7, false, "lipp"));
+        mustadNupud.add(new Nupp(4, 7, false, "kuningas"));
         koikNupud.addAll(valgedNupud);
         koikNupud.addAll(mustadNupud);
     }
 
     /**
-     * vaatab, kas käik, mida üritatakse teha on võimalik. Hetkel ta lihtsalt vaatab,
-     * kas üritatakse liigutada mingit nuppu ja et liigutatav nupp sama värvi nupu ära ei võtaks.
-     * @param vanaX
-     * @param vanaY
-     * @param uusX
-     * @param uusY
-     * @return
-     */
-    public boolean kaiguKatse(int vanaX, int vanaY, int uusX, int uusY){
-        Malenupp liigutatavNupp = null;
-        Malenupp sihtNupp = null;
-
-        for (Malenupp malenupp : koikNupud) {
-            if (malenupp.kasAsubSiin(vanaX, vanaY)) {
-                liigutatavNupp = malenupp;
-            } else if (malenupp.kasAsubSiin(uusX, uusY)) {
-                sihtNupp = malenupp;
-            }
-        }
-
-       if (liigutatavNupp == null) {
-           return false;
-       } else if (liigutatavNupp.onValge() != onValgeKäik) {
-           return false;
-       } else if (!liigutatavNupp.kaiguDeltad().contains(List.of(uusX-vanaX, uusY-vanaY))) {
-           return false;
-       } else if (sihtNupp != null && sihtNupp.onValge() == onValgeKäik) {
-           return false;
-       }
-       return true;
-    }
-
-    /**
      * Liigutab nupu algruudult lõppruutu. Kui lõppruudul on nupp, siis kustutab ta ära. Ei tee ühtegi kontrolli.
-     * @param vanaX
-     * @param vanaY
-     * @param uusX
-     * @param uusY
+     * @param kaik
      */
-    public void teeKaik(int vanaX, int vanaY, int uusX, int uusY){
-        for (Malenupp malenupp : koikNupud) {
+    public void teeKaik(int[] kaik, LauaVaade lauaVaade) {
+        int vanaX = kaik[0];
+        int vanaY = kaik[1];
+        int uusX = kaik[2];
+        int uusY = kaik[3];
+        for (Nupp malenupp : koikNupud) {
             if (malenupp.kasAsubSiin(uusX, uusY)){
                 if (malenupp.onValge()) {
                     valgedNupud.remove(malenupp);
@@ -84,35 +54,15 @@ public class Malelaud {
                 break;
             }
         }
-        for (Malenupp malenupp : koikNupud){
+        for (Nupp malenupp : koikNupud){
             if (malenupp.kasAsubSiin(vanaX, vanaY)){
                 malenupp.liiguta(uusX, uusY);
             }
         }
-
-        onValgeKäik = !onValgeKäik;
+        Platform.runLater(lauaVaade::uuendaLaud);
     }
 
-    /**
-     * Hetkel tagastab 0, kui mäng ei ole läbi, 1 kui laua värv võtis ja -1 kui laua värv kaotas. Viiki veel ei eksisteeri.
-     * @param valgeKaik
-     * @return
-     */
-    int mangLabi(boolean valgeKaik){
-        boolean valgeKuningas = false;
-        boolean mustKuningas = false;
-        for (Malenupp malenupp : koikNupud) {
-            if (malenupp.getClass() == Kuningas.class){
-                if (malenupp.onValge()) valgeKuningas = true;
-                else mustKuningas = true;
-            }
-        }
-        if (valgeKuningas && mustKuningas) return 0;
-        if (valgeKuningas && valgeKaik || mustKuningas && !valgeKaik) return 1;
-        return 0;
-    }
-
-    public List<Malenupp> getKoikNupud() {
+    public List<Nupp> getKoikNupud() {
         return koikNupud;
     }
 }
