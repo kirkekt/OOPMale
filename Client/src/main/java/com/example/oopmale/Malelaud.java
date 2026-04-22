@@ -10,8 +10,6 @@ public class Malelaud {
     private List<Nupp> valgedNupud = new ArrayList<>();
     private List<Nupp> mustadNupud = new ArrayList<>();
 
-    private boolean onValgeKäik = true;
-
     public Malelaud() {
         for (int x = 0; x < 8; x++) {
             valgedNupud.add(new Nupp(x, 1, true, "ettur"));

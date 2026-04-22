@@ -61,13 +61,6 @@ public class HelloApplication extends Application {
                         Platform.runLater(lauaVaade::klikidReset);
                     }
 
-            Malelaud malelaud = new Malelaud();
-            LauaVaade lauaVaade = new LauaVaade(malelaud, valge);
-            Scene scene = new Scene(lauaVaade.getVaade(), 700, 700);
-            stage.setTitle("Male");
-            stage.setScene(scene);
-            stage.show();
-
                     int[] vastaseKaik = Suhtlus.loeKaik(in, out);
                     if (vastaseKaik[0] == Suhtlus.manguLopp) {
                         System.out.print("mäng läbi - ");
