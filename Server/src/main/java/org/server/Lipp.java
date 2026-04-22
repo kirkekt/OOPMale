@@ -4,23 +4,26 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Lipp extends Malenupp {
-    private final List<List<Integer>> kaigud = new ArrayList<>();
+    private final List<List<Asukoht>> kaigud = new ArrayList<>();
 
     public Lipp(int x, int y, boolean onValge) {
         super(x, y, onValge);
+        for (int i = 0; i < 8; i++) {
+            kaigud.add(new ArrayList<>());
+        }
         for (int i = 1; i < 8; i++) {
-            kaigud.add(List.of(0, i));
-            kaigud.add(List.of(0,-i));
-            kaigud.add(List.of(i,0));
-            kaigud.add(List.of(-i,0));
-            kaigud.add(List.of(i, i));
-            kaigud.add(List.of(i,-i));
-            kaigud.add(List.of(-i,i));
-            kaigud.add(List.of(-i,-i));
+            kaigud.get(0).add(new Asukoht(0, i));
+            kaigud.get(1).add(new Asukoht(0,-i));
+            kaigud.get(2).add(new Asukoht(i,0));
+            kaigud.get(3).add(new Asukoht(-i,0));
+            kaigud.get(4).add(new Asukoht(i, i));
+            kaigud.get(5).add(new Asukoht(i,-i));
+            kaigud.get(6).add(new Asukoht(-i,i));
+            kaigud.get(7).add(new Asukoht(-i,-i));
         }
     }
     @Override
-    protected List<List<Integer>> kaiguDeltad() {
+    protected List<List<Asukoht>> kaiguDeltad() {
         return kaigud;
     }
 }

@@ -38,21 +38,20 @@ public class Malelaud {
      * @return
      */
     public boolean kasLubatudKaik(boolean valgeKaik, int[] kaik){
-        int vanaX = kaik[0];
-        int vanaY = kaik[1];
-        int uusX = kaik[2];
-        int uusY = kaik[3];
+        Asukoht vanaAsukoht = new Asukoht(kaik[0], kaik[1]);
+        Asukoht deltaKaik = new Asukoht(kaik[2]-kaik[0], kaik[3]-kaik[1]);
+        Asukoht uusAsukoht = new Asukoht(kaik[2], kaik[3]);
 
         for (Malenupp malenupp : koikNupud) {
-            if (!(malenupp.kasAsubSiin(vanaX, vanaY) && malenupp.onValge() == valgeKaik)){
+            // kas leidub õiges kohas õiget värvi nupp?
+            if (!(malenupp.kasAsubSiin(vanaAsukoht) && malenupp.onValge() == valgeKaik)){
                 continue;
             }
-            if (!malenupp.kaiguDeltad().contains(List.of(uusX-vanaX, uusY-vanaY))){
+            // kas nupp saab seda käiku teha?
+            if (!malenupp.kaiguDeltad().stream().anyMatch(elt -> elt.contains(deltaKaik))){
                 continue;
             }
-            if (malenupp.kasAsubSiin(uusX, uusY) && malenupp.onValge() == valgeKaik){
-                return false;
-            }
+
             return true;
         }
         return false;
@@ -63,12 +62,11 @@ public class Malelaud {
      * @param kaik
      */
     public void teeKaik(int[] kaik){
-        int vanaX = kaik[0];
-        int vanaY = kaik[1];
-        int uusX = kaik[2];
-        int uusY = kaik[3];
+        Asukoht algneAsukoht = new Asukoht(kaik[0], kaik[1]);
+        Asukoht deltaKaik = new Asukoht(kaik[2]-kaik[0], kaik[3]-kaik[1]);
+        Asukoht uusAsukoht = new Asukoht(kaik[2], kaik[3]);
         for (Malenupp malenupp : koikNupud) {
-            if (malenupp.kasAsubSiin(uusX, uusY)){
+            if (malenupp.kasAsubSiin(uusAsukoht)){
                 if (malenupp.onValge()) {
                     valgedNupud.remove(malenupp);
                 } else {
@@ -79,8 +77,8 @@ public class Malelaud {
             }
         }
         for (Malenupp malenupp : koikNupud){
-            if (malenupp.kasAsubSiin(vanaX, vanaY)){
-                malenupp.liiguta(uusX, uusY);
+            if (malenupp.kasAsubSiin(algneAsukoht)){
+                malenupp.liiguta(deltaKaik);
             }
         }
     }
