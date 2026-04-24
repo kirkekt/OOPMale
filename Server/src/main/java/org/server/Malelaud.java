@@ -42,19 +42,81 @@ public class Malelaud {
         Asukoht deltaKaik = new Asukoht(kaik[2]-kaik[0], kaik[3]-kaik[1]);
         Asukoht uusAsukoht = new Asukoht(kaik[2], kaik[3]);
 
-        for (Malenupp malenupp : koikNupud) {
-            // kas leidub õiges kohas õiget värvi nupp?
-            if (!(malenupp.kasAsubSiin(vanaAsukoht) && malenupp.onValge() == valgeKaik)){
-                continue;
-            }
-            // kas nupp saab seda käiku teha?
-            if (!malenupp.kaiguDeltad().stream().anyMatch(elt -> elt.contains(deltaKaik))){
-                continue;
-            }
+        Malenupp liigutatavNupp = misNuppRuudul(vanaAsukoht);
+        Malenupp sihtNupp = misNuppRuudul(uusAsukoht);
 
+        if (liigutatavNupp == null
+                || liigutatavNupp.onValge() != valgeKaik
+                || !liigutatavNupp.kaiguDeltad().stream().anyMatch(elt -> elt.contains(deltaKaik))
+                || sihtNupp != null && sihtNupp.onValge() == valgeKaik
+        )  return false;
+
+        // kas teekond on vaba?
+        if (!kasTeekondVaba(vanaAsukoht, uusAsukoht)) return false;
+
+        return true;
+    }
+
+    private Malenupp misNuppRuudul(Asukoht asukoht) {
+        for (Malenupp malenupp : koikNupud) {
+            if (malenupp.kasAsubSiin(asukoht)) {
+                return malenupp;
+            }
+        }
+        return null;
+    }
+
+    private boolean kasTeekondVaba(Asukoht a, Asukoht b) {
+        Asukoht algus, lõpp;
+        if (a.getX() < b.getX()) {
+            algus = a;
+            lõpp = b;
+        } else if (b.getX() < a.getX()) {
+            algus = b;
+            lõpp = a;
+        } else {
+            if (a.getY() > b.getY()) {
+                algus = b;
+                lõpp = a;
+            } else {
+                algus = a;
+                lõpp = b;
+            }
+        }
+
+        // horisontaalne
+        if (algus.getY() == lõpp.getY()) {
+            for (int x = algus.getX() + 1; x < lõpp.getX(); x++) {
+                if (misNuppRuudul(new Asukoht(x,lõpp.getY())) != null) {
+                    return false;
+                }
+            }
             return true;
         }
-        return false;
+
+        // vertikaalne
+        if (algus.getX() == lõpp.getX()) {
+            for (int y = algus.getY() + 1; y < lõpp.getY(); y++) {
+                if (misNuppRuudul(new Asukoht(lõpp.getX(),y)) != null) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        // diagonaalne
+        for (int x = algus.getX() + 1; x < lõpp.getX(); x++) {
+            int muut = x - algus.getX();
+
+            if (algus.getY() > lõpp.getY()) {
+                muut = -muut;
+            }
+
+            if (misNuppRuudul(new Asukoht(x, algus.getY() + muut)) != null) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
