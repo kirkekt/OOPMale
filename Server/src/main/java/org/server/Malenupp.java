@@ -64,4 +64,13 @@ public abstract class Malenupp {
     public boolean OnValge() {
         return onValge;
     }
+
+    @Override
+    public String toString() {
+        return "Malenupp{" +
+                "Klass="+this.getClass()+
+                "asukoht=" + asukoht +
+                ", onValge=" + onValge +
+                '}';
+    }
 }

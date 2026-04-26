@@ -63,6 +63,12 @@ public class Mang implements Runnable {
                     malelaud.teeKaik(kaik);
                     Suhtlus.saadaKaiguInfo(kaiguTegijaOut, vastaneOut, vastaneIn, kaik);
                     valgeKord = !valgeKord;
+                    // debug jaoks:
+                    //System.out.println("Valgekord=" + valgeKord);
+                    //System.out.println("asukohad:");
+                    //for (Malenupp malenupp : malelaud.getKoikNupud()) {
+                    //    System.out.println("Nupp:"+malenupp.getClass()+", varv: "+ malenupp.onValge()+" x_asukoht: " + malenupp.getAsukoht().getX() + ", y_asukoht: " + malenupp.getAsukoht().getY());
+                    //}
                 }
                 else {
                     kaiguTegijaOut.writeInt(Suhtlus.illegaalneKaik);

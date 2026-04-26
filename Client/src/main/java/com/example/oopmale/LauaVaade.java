@@ -10,12 +10,6 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.Socket;
-import java.net.UnknownHostException;
 import java.util.concurrent.BlockingQueue;
 
 public class LauaVaade {
@@ -34,7 +28,7 @@ public class LauaVaade {
         malelaud = laud;
         uuendaLaud();
     }
-
+    // pmst minu meelest pole seda enam vaja, igaks juhuks jätan praegu alles tho
     private void nuppKlikiti(Nupp nupp) {
         int x = nupp.getX();
         int y = nupp.getY();
@@ -52,6 +46,9 @@ public class LauaVaade {
         if (esimeneX != null) {
             teeTeineKlikk(x, y);
         }
+        esimeneX = x;
+        esimeneY = y;
+
     }
 
     private void teeTeineKlikk(int uusX, int uusY) {
@@ -122,7 +119,8 @@ public class LauaVaade {
         ImageView vaade = new ImageView(pilt);
         GridPane.setHalignment(vaade, HPos.CENTER);
         GridPane.setValignment(vaade, VPos.CENTER);
-        vaade.setOnMouseClicked(e -> nuppKlikiti(nupp));
+        //vaade.setOnMouseClicked(e -> nuppKlikiti(nupp));
+        vaade.setMouseTransparent(true);
         return vaade;
     }
 

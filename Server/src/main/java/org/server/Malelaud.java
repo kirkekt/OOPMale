@@ -7,7 +7,6 @@ public class Malelaud {
     private List<Malenupp> koikNupud = new ArrayList<>();
     private List<Malenupp> valgedNupud = new ArrayList<>();
     private List<Malenupp> mustadNupud = new ArrayList<>();
-
     public Malelaud() {
         for (int x = 0; x < 8; x++) {
             valgedNupud.add(new Ettur(x, 1, true));
@@ -31,8 +30,7 @@ public class Malelaud {
     }
 
     /**
-     * vaatab, kas käik, mida üritatakse teha on võimalik. Hetkel ta lihtsalt vaatab,
-     * kas üritatakse liigutada mingit nuppu ja et liigutatav nupp sama värvi nupu ära ei võtaks.
+     * Tagastab true, kui käiku saab teha, muidu false.
      * @param valgeKaik
      * @param kaik
      * @return
@@ -42,14 +40,28 @@ public class Malelaud {
         Asukoht uusAsukoht = new Asukoht(kaik[2], kaik[3]);
 
         Malenupp liigutatavNupp = misNuppRuudul(vanaAsukoht);
-        if (liigutatavNupp == null)
+        if (liigutatavNupp == null) // kui algsel ruudul pole nuppu, siis käik on võimatu
             return false;
+        if (liigutatavNupp.onValge()!=valgeKaik)
+            return false; // nupp peab õiget värvi olema
+        if (!voimalikLiigutada(liigutatavNupp, uusAsukoht)){
+            return false; // kui nupp ei saa käiku teha, siis käik on võimatu
+        }
+        // kontrollime ega tuld ei teki peale käiku:
+        Malenupp araVoetavNupp = misNuppRuudul(uusAsukoht);
+        liigutatavNupp.liiguta(uusAsukoht.getX() - vanaAsukoht.getX(), uusAsukoht.getY()-vanaAsukoht.getY());
+        List<Malenupp> vastasNuppud = valgeKaik ? mustadNupud : valgedNupud;
+        if (vastasNuppud.contains(araVoetavNupp)) vastasNuppud.remove(araVoetavNupp);
+        boolean vastus = onTuli(valgeKaik);
+        if (araVoetavNupp != null) vastasNuppud.add(araVoetavNupp);
+        liigutatavNupp.liiguta(vanaAsukoht.getX()- uusAsukoht.getX(), vanaAsukoht.getY()-uusAsukoht.getY());
+        return !vastus;
 
-        return voimalikLiigutada(liigutatavNupp, uusAsukoht);
+
     }
 
     /**
-     * Vaatab, kas nuppu on võimalik liigutada sihtruudule. Ei kontrolli, kas nupp on tule all või
+     * Vaatab, kas nuppu on võimalik liigutada sihtruudule. Ei kontrolli,
      * kas liigutuse tulemus paneb kuninga tule alla
      * @param nupp
      * @param sihtAsukoht
