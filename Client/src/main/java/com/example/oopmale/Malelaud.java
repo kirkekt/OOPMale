@@ -2,14 +2,16 @@ package com.example.oopmale;
 
 import javafx.application.Platform;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Malelaud {
     private List<Nupp> koikNupud = new ArrayList<>();
     private List<Nupp> valgedNupud = new ArrayList<>();
     private List<Nupp> mustadNupud = new ArrayList<>();
-
     public Malelaud() {
         for (int x = 0; x < 8; x++) {
             valgedNupud.add(new Nupp(x, 1, true, "ettur"));

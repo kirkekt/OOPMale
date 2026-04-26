@@ -1,12 +1,16 @@
 package org.server;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Malelaud {
     private List<Malenupp> koikNupud = new ArrayList<>();
     private List<Malenupp> valgedNupud = new ArrayList<>();
     private List<Malenupp> mustadNupud = new ArrayList<>();
+    private Map<BigInteger, Integer> seisudKordsusega = new HashMap<>();
     public Malelaud() {
         for (int x = 0; x < 8; x++) {
             valgedNupud.add(new Ettur(x, 1, true));
@@ -94,6 +98,9 @@ public class Malelaud {
                 }
                 return false;
             }
+            if (vaadeldavAsukoht.equals(sihtAsukoht)){
+                return true;
+            }
         }
 
         return true;
@@ -159,26 +166,90 @@ public class Malelaud {
                 malenupp.liiguta(deltaKaik);
             }
         }
+        // kui ettur on esimesel või viimasel real (ehk 7|y), siis lipp asemele
+        if (uusAsukoht.getY()%7==0){
+            Malenupp potensiaalneEttur = misNuppRuudul(uusAsukoht);
+            if (potensiaalneEttur.getClass()==Ettur.class){
+                Malenupp asendusLipp = new Lipp(potensiaalneEttur.getAsukoht(), potensiaalneEttur.onValge());
+                List<Malenupp> kusAsendada = asendusLipp.onValge() ? valgedNupud : mustadNupud;
+                valgedNupud.remove(potensiaalneEttur);
+                valgedNupud.add(asendusLipp);
+                koikNupud.remove(potensiaalneEttur);
+                koikNupud.add(asendusLipp);
+            }
+        }
+        BigInteger seisuSumma = seisuSumma();
+        if (!seisudKordsusega.containsKey(seisuSumma)){
+            seisudKordsusega.put(seisuSumma, 0);
+        }
+        seisudKordsusega.replace(seisuSumma, 1 + seisudKordsusega.get(seisuSumma));
     }
 
     /**
-     * Hetkel tagastab 0, kui mäng ei ole läbi, 1 kui laua värv võtis ja -1 kui laua värv kaotas. Viiki veel ei eksisteeri.
+     * Kutsutakse välja käigu alguses (okei tehniliselt käigu lõpus aga vastase värviga, sama asi)
+     * Hetkel tagastab 0 kui mäng jätkub, 1 kui valge võitis, -1 kui must võitis ja 67 kui seis on viik.
      * @param valgeKaik
      * @return
      */
     int mangLabi(boolean valgeKaik){
-        boolean valgeKuningas = false;
-        boolean mustKuningas = false;
-        for (Malenupp malenupp : koikNupud) {
-            if (malenupp.getClass() == Kuningas.class){
-                if (malenupp.onValge()) valgeKuningas = true;
-                else mustKuningas = true;
+        if (seisudKordsusega.containsValue(3))
+            return 67;
+        List<Malenupp> vaadeldavadNupud = valgeKaik? valgedNupud : mustadNupud;
+        for (Malenupp iMalenupp : vaadeldavadNupud) {
+            for (List<Asukoht> iKaigud : iMalenupp.voimalikudKaigud()) {
+                for (Asukoht iKaik : iKaigud) {
+                    if (kasLubatudKaik(
+                            valgeKaik,
+                            new int[] {
+                                    iMalenupp.getAsukoht().getX(),
+                                    iMalenupp.getAsukoht().getY(),
+                                    iMalenupp.getAsukoht().getX() + iKaik.getX(),
+                                    iMalenupp.getAsukoht().getY() + iKaik.getY()
+                            }
+                    )){
+                        System.out.println(iMalenupp);
+                        System.out.println(iMalenupp.getAsukoht().getX() + iKaik.getX() + " " + iMalenupp.getAsukoht().getY() + iKaik.getY());
+                        return 0; // mängija saab mingi käigu teha, mäng ei ole läbi
+                    }
+                }
             }
         }
-        if (valgeKuningas && mustKuningas) return 0;
-        if (valgeKuningas && valgeKaik || mustKuningas && !valgeKaik) return 1;
-        return 0;
+        //teame, et ühtegi käiku ei saa teha. Kui on tuli, siis on kaotus, muidu viik
+        // kui valge peaks käigu tegema aga ei saa ja on tuli, siis must võitis. (ja vastupidi).
+        System.out.println("Tulemus on:");
+        System.out.println(onTuli(valgeKaik)?(valgeKaik ? -1 : 1) : 67);
+        return onTuli(valgeKaik)?(valgeKaik ? -1 : 1) : 67;
     }
+
+    private int nupuVaartusSeisuks(Malenupp malenupp){
+        if (malenupp == null){
+            return 0;
+        }
+        int vaartus = malenupp.onValge()? 0 : 6;
+        switch (malenupp.getClass().getSimpleName()){
+            case ("Ettur"): vaartus += 1;
+                break;
+            case ("Ratsu"): vaartus += 2;
+                break;
+            case ("Vanker"): vaartus += 3;
+                break;
+            case ("Lipp"): vaartus += 4;
+                break;
+            case ("Kuningas"): vaartus += 5;
+                break;
+            case ("Oda"): vaartus += 6;
+        }
+        return vaartus;
+    }
+    private BigInteger seisuSumma(){
+        BigInteger summa = BigInteger.ZERO;
+        for (int iPos = 0; iPos < 64; iPos++) {
+            int nupuVaartus = nupuVaartusSeisuks(misNuppRuudul(new Asukoht(iPos/8, iPos%8)));
+            summa = summa.add(BigInteger.valueOf(nupuVaartus).multiply(BigInteger.valueOf(13).pow(iPos)));
+        }
+        return summa;
+    }
+
 
     public List<Malenupp> getKoikNupud() {
         return koikNupud;

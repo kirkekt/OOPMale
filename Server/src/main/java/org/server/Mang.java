@@ -69,12 +69,24 @@ public class Mang implements Runnable {
                     //for (Malenupp malenupp : malelaud.getKoikNupud()) {
                     //    System.out.println("Nupp:"+malenupp.getClass()+", varv: "+ malenupp.onValge()+" x_asukoht: " + malenupp.getAsukoht().getX() + ", y_asukoht: " + malenupp.getAsukoht().getY());
                     //}
+                    if(malelaud.mangLabi(valgeKord) != 0){
+                        switch (malelaud.mangLabi(valgeKord)){
+                            case 1:
+                                System.out.println("Valge võitis");
+                                break;
+                            case -1:
+                                System.out.println("Must võitis");
+                                break;
+                            case 67:
+                                System.out.println("Haahaa viiki jäi");
+                        }
+                        break;
+                    }
                 }
                 else {
                     kaiguTegijaOut.writeInt(Suhtlus.illegaalneKaik);
                 }
             }
-            System.out.println("Mäng läbi");
         }
         catch (Exception e) {
             throw new RuntimeException(e);

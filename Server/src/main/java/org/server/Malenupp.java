@@ -1,5 +1,6 @@
 package org.server;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public abstract class Malenupp {
@@ -34,8 +35,11 @@ public abstract class Malenupp {
      * @return
      */
     public List<List<Asukoht>> voimalikudKaigud(){
-        List<List<Asukoht>> kaigud =  kaiguDeltad();
-        // eemaldab kõik käigud, mis lähevad lauast välja
+        List<List<Asukoht>> kaigud = new ArrayList<>();
+
+        for (List<Asukoht> suund : kaiguDeltad()) {
+            kaigud.add(new ArrayList<>(suund));
+        }        // eemaldab kõik käigud, mis lähevad lauast välja
         for (List<Asukoht> listDelta : kaigud) {
             listDelta.removeIf(delta -> delta.getX() + asukoht.getX() < 0
             || delta.getX() + asukoht.getX() > 7

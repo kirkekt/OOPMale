@@ -53,7 +53,7 @@ public class HelloApplication extends Application {
 
                     Suhtlus.saadaKaik(in, out, kordinaadid);
                     if (in.readInt() == Suhtlus.illegaalneKaik) {
-                        lauaVaade.klikidReset();
+                        //lauaVaade.klikidReset();
                         continue;
                     }
                     else {

@@ -6,8 +6,8 @@ import java.util.List;
 public class Lipp extends Malenupp {
     private final List<List<Asukoht>> kaigud = new ArrayList<>();
 
-    public Lipp(int x, int y, boolean onValge) {
-        super(x, y, onValge);
+    public Lipp(Asukoht asukoht, boolean onValge) {
+        super(asukoht, onValge);
         for (int i = 0; i < 8; i++) {
             kaigud.add(new ArrayList<>());
         }
@@ -21,6 +21,9 @@ public class Lipp extends Malenupp {
             kaigud.get(6).add(new Asukoht(-i,i));
             kaigud.get(7).add(new Asukoht(-i,-i));
         }
+    }
+    public Lipp(int x, int y, boolean onValge){
+        this(new Asukoht(x, y), onValge);
     }
     @Override
     protected List<List<Asukoht>> kaiguDeltad() {
