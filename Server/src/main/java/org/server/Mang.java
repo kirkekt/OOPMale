@@ -64,6 +64,7 @@ public class Mang implements Runnable {
                     valgeKord = !valgeKord;
                 }
                 else {
+                    System.out.println("keelatud käik");
                     kaiguTegijaOut.writeInt(Suhtlus.illegaalneKaik);
                 }
             }
