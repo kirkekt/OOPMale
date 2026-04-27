@@ -15,7 +15,6 @@ public class Mang implements Runnable {
         this.mustSocket = must;
     }
 
-
     @Override
     public void run() {
         // Tekitab malelaua
@@ -84,6 +83,7 @@ public class Mang implements Runnable {
                     }
                 }
                 else {
+                    System.out.println("keelatud käik");
                     kaiguTegijaOut.writeInt(Suhtlus.illegaalneKaik);
                 }
             }

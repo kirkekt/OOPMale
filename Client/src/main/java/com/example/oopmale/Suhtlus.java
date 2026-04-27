@@ -66,13 +66,11 @@ public class Suhtlus {
 
     public static void saadaKaik(DataInputStream in, DataOutputStream out, int[] kaik) throws IOException {
         saadaTegevus(in, out, kaiguKood, kaik);
-
     }
 
     public static void saadaManguLopp(DataInputStream in, DataOutputStream out, int tulemus) throws IOException {
         saadaTegevus(in, out, manguLopp, new int[]{tulemus});
     }
-
 
 
     // ABI
