@@ -1,7 +1,6 @@
 package com.example.oopmale;
 
 import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
@@ -21,12 +20,13 @@ public class HelloApplication extends Application {
 
         // Serveri ühenduse loomine
         Socket server = new Socket(ipAdress, 1337);
-        DataInputStream in = new DataInputStream(server.getInputStream());
         DataOutputStream out = new DataOutputStream(server.getOutputStream());
+        DataInputStream in = new DataInputStream(server.getInputStream());
 
         // Muutujate ette valmistamine
         final boolean onValge = Suhtlus.kasValge(in, out);
         BlockingQueue<int[]> kaigud = new LinkedBlockingQueue<>();
+
 
         // Malelaua ette valmistamine
         Malelaud malelaud = new Malelaud();
@@ -36,50 +36,18 @@ public class HelloApplication extends Application {
         stage.setScene(scene);
         stage.show();
 
-        // Akna sulgumisel sulgub ka ühendus serveriga
-        stage.setOnCloseRequest(e -> {try {server.close();} catch (Exception e1) {throw new RuntimeException(e1);}});
-
-        // Alustab mängu loop-i teises threadis
-        Thread manguThread = new Thread(() -> {
+        stage.setOnCloseRequest(e -> {
             try {
-                if (!onValge) {
-                    int[] vastaseKaik = Suhtlus.loeKaik(in, out);
-                    malelaud.teeKaik(vastaseKaik, lauaVaade);
-                }
-                while (true) {
-                    int[] kordinaadid = kaigud.take();
-
-                    System.out.println("Proovin käiku: " + kordinaadid[0] + "," + kordinaadid[1] + " -> " + kordinaadid[2] + "," + kordinaadid[3]);
-
-                    Suhtlus.saadaKaik(in, out, kordinaadid);
-                    if (in.readInt() == Suhtlus.illegaalneKaik) {
-                        lauaVaade.klikidReset();
-                        continue;
-                    }
-                    else {
-                        malelaud.teeKaik(kordinaadid, lauaVaade);
-                        Platform.runLater(lauaVaade::klikidReset);
-                    }
-
-                    int[] vastaseKaik = Suhtlus.loeKaik(in, out);
-                    if (vastaseKaik[0] == Suhtlus.manguLopp) {
-                        System.out.print("mäng läbi - ");
-                        if (vastaseKaik[1] == Suhtlus.kaotus) {
-                            System.out.println("kaotasid");
-                        } else if (vastaseKaik[1] == Suhtlus.viik) {
-                            System.out.println("jäite viiki");
-                        } else if (vastaseKaik[1] == Suhtlus.võit) {
-                            System.out.println("võitsid");
-                        }
-                        break;
-                    }
-                    else {malelaud.teeKaik(vastaseKaik, lauaVaade);}
-                }
-            } catch (Exception e) {
-                throw new RuntimeException(e);
+                server.close();
+            } catch (Exception e1) {
+                throw new RuntimeException(e1);
             }
         });
+
+        // Alustab mängu loop-i teises threadis
+        Thread manguThread = new Thread(new GameLoop(onValge, in, out, malelaud, lauaVaade, kaigud));
         manguThread.setDaemon(true);
         manguThread.start();
+
     }
 }
