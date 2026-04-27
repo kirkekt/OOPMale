@@ -15,7 +15,6 @@ public class Mang implements Runnable {
         this.mustSocket = must;
     }
 
-
     @Override
     public void run() {
         // Tekitab malelaua
