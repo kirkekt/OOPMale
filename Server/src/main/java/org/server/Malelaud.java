@@ -207,7 +207,7 @@ public class Malelaud {
                                     iMalenupp.getAsukoht().getY() + iKaik.getY()
                             }
                     )){
-                        System.out.println(iMalenupp);
+                        //System.out.println(iMalenupp);
                         System.out.println(iMalenupp.getAsukoht().getX() + iKaik.getX() + " " + iMalenupp.getAsukoht().getY() + iKaik.getY());
                         return 0; // mängija saab mingi käigu teha, mäng ei ole läbi
                     }

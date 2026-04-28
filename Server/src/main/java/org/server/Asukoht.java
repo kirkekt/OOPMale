@@ -19,7 +19,7 @@ public class Asukoht {
         this.y += delta.y;
     }
 
-    // getterid ja setterid on erandjuhtudeks (nt vangerdamise jaoks ja katsetamise jaoks
+    // setterid on erandjuhtudeks (nt vangerdamise jaoks ja katsetamise jaoks
     // ideaalis ei tohi neid kasutada
 
     public int getX() {
@@ -45,4 +45,11 @@ public class Asukoht {
         return x == asukoht.x && y == asukoht.y;
     }
 
+    @Override
+    public String toString() {
+        return "Asukoht{" +
+                "x=" + x +
+                ", y=" + y +
+                '}';
+    }
 }

@@ -43,8 +43,7 @@ public class Suhtlus {
     }
 
     public static void saadaInfo(DataOutputStream out, DataInputStream in, int kood, int[] sisu) throws IOException {
-        System.out.println("Saadan:");
-        System.out.println("pikkus - " + sisu.length+1 + ", kood - " + kood + ", sisu - " + Arrays.toString(sisu));
+        System.out.println("Saadan: pikkus - " + sisu.length+1 + ", kood - " + kood + ", sisu - " + Arrays.toString(sisu));
         out.writeInt(sisu.length +1);
         out.writeInt(kood);
         for (int i : sisu) {

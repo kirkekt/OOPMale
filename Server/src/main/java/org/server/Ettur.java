@@ -20,9 +20,7 @@ public class Ettur extends Malenupp {
     @Override
     protected List<List<Asukoht>> kaiguDeltad() {
         if (onValge() && this.getAsukoht().getY()==1 || !onValge() && this.getAsukoht().getY() == 6){
-            System.out.println(esimeneKaik);
             return esimeneKaik;
-
         }
         else{
             return hilisemKaik;
