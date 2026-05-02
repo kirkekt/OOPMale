@@ -6,6 +6,11 @@ import java.util.List;
 public abstract class Malenupp {
     private Asukoht asukoht;
     private final boolean onValge;
+    private boolean onLiikunud = false;
+
+    public boolean KasOnLiikunud() {
+        return onLiikunud;
+    }
 
     public Malenupp(Asukoht asukoht, boolean onValge){
         this.asukoht = asukoht;
@@ -18,9 +23,11 @@ public abstract class Malenupp {
 
     public void liiguta(Asukoht muutus){
         this.asukoht.liiguta(muutus);
+        this.onLiikunud = true;
     }
     public void liiguta(int deltaX, int deltaY){
         this.asukoht.liiguta(new Asukoht(deltaX, deltaY));
+        this.onLiikunud = true;
     }
 
     /**

@@ -48,9 +48,14 @@ public class Malelaud {
             return false;
         if (liigutatavNupp.onValge()!=valgeKaik)
             return false; // nupp peab õiget värvi olema
+
+        if (kasProovitakseVangerdada(liigutatavNupp, uusAsukoht)) {
+            return kasVangerdusVoimalik((Kuningas) liigutatavNupp, uusAsukoht);
+        }
         if (!voimalikLiigutada(liigutatavNupp, uusAsukoht)){
             return false; // kui nupp ei saa käiku teha, siis käik on võimatu
         }
+
         // kontrollime ega tuld ei teki peale käiku:
         Malenupp araVoetavNupp = misNuppRuudul(uusAsukoht);
         liigutatavNupp.liiguta(uusAsukoht.getX() - vanaAsukoht.getX(), uusAsukoht.getY()-vanaAsukoht.getY());
@@ -107,6 +112,84 @@ public class Malelaud {
     }
 
     /**
+     * Ei kontrolli, kas kuningat on juba liigutatud ehk võib tagastada true, kui kuningas on juba liikunud
+     * @param liigutatavNupp
+     * @param sihtRuut
+     * @return
+     */
+    public boolean kasProovitakseVangerdada(Malenupp liigutatavNupp, Asukoht sihtRuut) {
+        int nupuX = liigutatavNupp.getAsukoht().getX();
+        int nupuY = liigutatavNupp.getAsukoht().getY();
+        int sihtRuuduX = sihtRuut.getX();
+
+        if (!(liigutatavNupp instanceof Kuningas)) {
+            return false;
+        }
+        if (!(sihtRuuduX == 2 || sihtRuuduX == 6)) {
+            return false;
+        }
+        if (Math.abs(nupuX - sihtRuuduX) != 2) {
+            return false;
+        }
+        return sihtRuut.getY() == nupuY;
+    }
+
+
+    public boolean kasVangerdusVoimalik(Kuningas kuningas, Asukoht sihtRuut) {
+        if (kuningas.KasOnLiikunud()) {
+            return false;
+        }
+
+        int sihtRuuduX = sihtRuut.getX();
+        Malenupp vanker;
+
+        if (sihtRuuduX == 2) {
+            if (kuningas.onValge()) {
+                vanker = misNuppRuudul(new Asukoht(0,0));
+            } else {
+                vanker = misNuppRuudul(new Asukoht(0,7));
+            }
+        } else if (sihtRuuduX == 6) {
+            if (kuningas.onValge()) {
+                vanker = misNuppRuudul(new Asukoht(7,0));
+            } else {
+                vanker = misNuppRuudul(new Asukoht(7,7));
+            }
+        } else {
+            return false;
+        }
+        if (!(vanker instanceof Vanker)) {
+            return false;
+        }
+        if (vanker.KasOnLiikunud()) {
+            return false;
+        }
+
+        int kuningaX = kuningas.getAsukoht().getX();
+        int kuningaY = kuningas.getAsukoht().getY();
+        int vankriX = vanker.getAsukoht().getX();
+        int algus = Math.min(kuningaX, vankriX);
+        int lõpp = Math.max(kuningaX, vankriX);
+
+        for (int x = algus + 1; x < lõpp; x++) {
+            if (misNuppRuudul(new Asukoht(x,kuningaY)) != null) {
+                return false;
+            }
+        }
+
+        algus = Math.min(sihtRuuduX, kuningaX);
+        lõpp = Math.max(sihtRuuduX, kuningaX);
+        List<Malenupp> vastaseNupud = kuningas.onValge() ? mustadNupud : valgedNupud;
+
+        for (int x = algus; x < lõpp + 1; x++) {
+            if (kasRuudulTuli(new Asukoht(x,kuningaY), vastaseNupud)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
      * Kontrollib, kas vaadeldav mängija on tule all
      * @param valgeKaik
      * @return
@@ -125,8 +208,12 @@ public class Malelaud {
         if (kuningas == null)
             throw new RuntimeException("Laual ei ole kuningat");
 
+        return kasRuudulTuli(kuningas.getAsukoht(), vastaseNupud);
+    }
+
+    public boolean kasRuudulTuli(Asukoht ruut, List<Malenupp> vastaseNupud) {
         for (Malenupp nupp : vastaseNupud) {
-            if (voimalikLiigutada(nupp, kuningas.getAsukoht())) {
+            if (voimalikLiigutada(nupp, ruut)) {
                 return true;
             }
         }
