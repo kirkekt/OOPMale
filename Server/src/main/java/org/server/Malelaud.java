@@ -257,12 +257,10 @@ public class Malelaud {
         }
         for (Malenupp malenupp : koikNupud){
             if (malenupp.kasAsubSiin(algneAsukoht)){
-                malenupp.liiguta(deltaKaik);
                 if (kasProovitakseVangerdada(malenupp, uusAsukoht)) {
                     Malenupp vanker = leiaVangerduseVanker((Kuningas) malenupp, uusAsukoht);
                     if (vanker == null)
                         throw new RuntimeException("Vangerduse vankrit ei leitud");
-
                     if (vanker.getAsukoht().getX() == 7) {
                         // lühike vangerdus
                         vanker.liiguta(-2, 0);
@@ -271,6 +269,7 @@ public class Malelaud {
                         vanker.liiguta(3, 0);
                     }
                 }
+                malenupp.liiguta(deltaKaik);
             }
         }
         // kui ettur on esimesel või viimasel real (ehk 7|y), siis lipp asemele
