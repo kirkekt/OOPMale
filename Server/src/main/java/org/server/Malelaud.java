@@ -140,22 +140,9 @@ public class Malelaud {
             return false;
         }
 
-        int sihtRuuduX = sihtRuut.getX();
-        Malenupp vanker;
+        Malenupp vanker = leiaVangerduseVanker(kuningas, sihtRuut);
 
-        if (sihtRuuduX == 2) {
-            if (kuningas.onValge()) {
-                vanker = misNuppRuudul(new Asukoht(0,0));
-            } else {
-                vanker = misNuppRuudul(new Asukoht(0,7));
-            }
-        } else if (sihtRuuduX == 6) {
-            if (kuningas.onValge()) {
-                vanker = misNuppRuudul(new Asukoht(7,0));
-            } else {
-                vanker = misNuppRuudul(new Asukoht(7,7));
-            }
-        } else {
+        if (vanker == null) {
             return false;
         }
         if (!(vanker instanceof Vanker)) {
@@ -177,6 +164,7 @@ public class Malelaud {
             }
         }
 
+        int sihtRuuduX = sihtRuut.getX();
         algus = Math.min(sihtRuuduX, kuningaX);
         lõpp = Math.max(sihtRuuduX, kuningaX);
         List<Malenupp> vastaseNupud = kuningas.onValge() ? mustadNupud : valgedNupud;
@@ -187,6 +175,25 @@ public class Malelaud {
             }
         }
         return true;
+    }
+
+    public Malenupp leiaVangerduseVanker(Kuningas kuningas, Asukoht sihtRuut) {
+        int sihtRuuduX = sihtRuut.getX();
+
+        if (sihtRuuduX == 2) {
+            if (kuningas.onValge()) {
+                return misNuppRuudul(new Asukoht(0,0));
+            } else {
+                return misNuppRuudul(new Asukoht(0,7));
+            }
+        } else if (sihtRuuduX == 6) {
+            if (kuningas.onValge()) {
+                return misNuppRuudul(new Asukoht(7,0));
+            } else {
+                return misNuppRuudul(new Asukoht(7,7));
+            }
+        }
+        return null;
     }
 
     /**
@@ -251,6 +258,19 @@ public class Malelaud {
         for (Malenupp malenupp : koikNupud){
             if (malenupp.kasAsubSiin(algneAsukoht)){
                 malenupp.liiguta(deltaKaik);
+                if (kasProovitakseVangerdada(malenupp, uusAsukoht)) {
+                    Malenupp vanker = leiaVangerduseVanker((Kuningas) malenupp, uusAsukoht);
+                    if (vanker == null)
+                        throw new RuntimeException("Vangerduse vankrit ei leitud");
+
+                    if (vanker.getAsukoht().getX() == 7) {
+                        // lühike vangerdus
+                        vanker.liiguta(-2, 0);
+                    } else {
+                        // pikk vangerdus
+                        vanker.liiguta(3, 0);
+                    }
+                }
             }
         }
         // kui ettur on esimesel või viimasel real (ehk 7|y), siis lipp asemele
