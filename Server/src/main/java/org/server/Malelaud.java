@@ -11,6 +11,8 @@ public class Malelaud {
     private List<Malenupp> valgedNupud = new ArrayList<>();
     private List<Malenupp> mustadNupud = new ArrayList<>();
     private Map<BigInteger, Integer> seisudKordsusega = new HashMap<>();
+    private int kaiguNumber = 0;
+
     public Malelaud() {
         for (int x = 0; x < 8; x++) {
             valgedNupud.add(new Ettur(x, 1, true));
@@ -56,8 +58,22 @@ public class Malelaud {
             return false; // kui nupp ei saa käiku teha, siis käik on võimatu
         }
 
+        if (liigutatavNupp instanceof Ettur) {
+            if (uusAsukoht.getX() != vanaAsukoht.getX()) {
+                // Ettur proovib süüa
+                if (!(misNuppRuudul(uusAsukoht) != null || kasOnEnPassant((Ettur) liigutatavNupp, uusAsukoht))) {
+                    return false;
+                }
+            }
+        }
+
         // kontrollime ega tuld ei teki peale käiku:
-        Malenupp araVoetavNupp = misNuppRuudul(uusAsukoht);
+        Malenupp araVoetavNupp;
+        if (!(liigutatavNupp instanceof Ettur && kasOnEnPassant((Ettur) liigutatavNupp, uusAsukoht))) {
+            araVoetavNupp = misNuppRuudul(uusAsukoht);
+        } else {
+            araVoetavNupp = leiaEnPassantiAravoetavEttur((Ettur) liigutatavNupp, uusAsukoht);
+        }
         liigutatavNupp.liiguta(uusAsukoht.getX() - vanaAsukoht.getX(), uusAsukoht.getY()-vanaAsukoht.getY());
         List<Malenupp> vastasNuppud = valgeKaik ? mustadNupud : valgedNupud;
         if (vastasNuppud.contains(araVoetavNupp)) vastasNuppud.remove(araVoetavNupp);
@@ -65,8 +81,46 @@ public class Malelaud {
         if (araVoetavNupp != null) vastasNuppud.add(araVoetavNupp);
         liigutatavNupp.liiguta(vanaAsukoht.getX()- uusAsukoht.getX(), vanaAsukoht.getY()-uusAsukoht.getY());
         return !vastus;
+    }
 
+    /**
+     * Vaatab, kas etturiga proovitakse teha En Passanti. Eeldab, et sihtruut on etturi jaoks võimalik potentsiaalne käik
+     * @param ettur
+     * @param sihtruut
+     * @return
+     */
+    public boolean kasOnEnPassant(Ettur ettur, Asukoht sihtruut) {
+        int etturiX = ettur.getAsukoht().getX();
+        int sihtRuuduX = sihtruut.getX();
+        if (sihtRuuduX == etturiX) {
+            return false;
+        }
 
+        Ettur soodavEttur = leiaEnPassantiAravoetavEttur(ettur, sihtruut);
+        if (soodavEttur == null) {
+            return false;
+        }
+
+        if (ettur.onValge() == soodavEttur.onValge() || !soodavEttur.KasOnLiikunud()) {
+            return false;
+        }
+
+        return soodavEttur.getEsimeseKaiguNumber() == kaiguNumber;
+    }
+
+    public Ettur leiaEnPassantiAravoetavEttur(Ettur soovEttur, Asukoht sihtruut) {
+        int soodavaEtturiY;
+        if (soovEttur.onValge()) {
+            soodavaEtturiY = sihtruut.getY() - 1;
+        } else {
+            soodavaEtturiY = sihtruut.getY() + 1;
+        }
+        Malenupp nuppRuudul = misNuppRuudul(new Asukoht(sihtruut.getX(), soodavaEtturiY));
+        if (!(nuppRuudul instanceof Ettur)) {
+            return null;
+        }
+
+        return (Ettur) nuppRuudul;
     }
 
     /**
@@ -244,34 +298,54 @@ public class Malelaud {
         Asukoht algneAsukoht = new Asukoht(kaik[0], kaik[1]);
         Asukoht deltaKaik = new Asukoht(kaik[2]-kaik[0], kaik[3]-kaik[1]);
         Asukoht uusAsukoht = new Asukoht(kaik[2], kaik[3]);
-        for (Malenupp malenupp : koikNupud) {
-            if (malenupp.kasAsubSiin(uusAsukoht)){
-                if (malenupp.onValge()) {
-                    valgedNupud.remove(malenupp);
-                } else {
-                    mustadNupud.remove(malenupp);
-                }
-                koikNupud.remove(malenupp);
-                break;
+
+        Malenupp soodavNupp = misNuppRuudul(uusAsukoht);
+        if (soodavNupp != null) {
+            if (soodavNupp.onValge()) {
+                valgedNupud.remove(soodavNupp);
+            } else {
+                mustadNupud.remove(soodavNupp);
+            }
+            koikNupud.remove(soodavNupp);
+        }
+
+        Malenupp liigutatavNupp = misNuppRuudul(algneAsukoht);
+
+        if (kasProovitakseVangerdada(liigutatavNupp, uusAsukoht)) {
+            Malenupp vanker = leiaVangerduseVanker((Kuningas) liigutatavNupp, uusAsukoht);
+            if (vanker == null)
+                throw new RuntimeException("Vangerduse vankrit ei leitud");
+            if (vanker.getAsukoht().getX() == 7) {
+                // lühike vangerdus
+                vanker.liiguta(-2, 0);
+            } else {
+                // pikk vangerdus
+                vanker.liiguta(3, 0);
             }
         }
-        for (Malenupp malenupp : koikNupud){
-            if (malenupp.kasAsubSiin(algneAsukoht)){
-                if (kasProovitakseVangerdada(malenupp, uusAsukoht)) {
-                    Malenupp vanker = leiaVangerduseVanker((Kuningas) malenupp, uusAsukoht);
-                    if (vanker == null)
-                        throw new RuntimeException("Vangerduse vankrit ei leitud");
-                    if (vanker.getAsukoht().getX() == 7) {
-                        // lühike vangerdus
-                        vanker.liiguta(-2, 0);
-                    } else {
-                        // pikk vangerdus
-                        vanker.liiguta(3, 0);
-                    }
-                }
-                malenupp.liiguta(deltaKaik);
+
+        // Peab olema enne käigunumbri suurendamist, muidu kasOnEnPassant töötab valesti
+        if (liigutatavNupp instanceof Ettur && kasOnEnPassant((Ettur) liigutatavNupp, uusAsukoht)) {
+            Ettur soodavEttur = leiaEnPassantiAravoetavEttur((Ettur) liigutatavNupp, uusAsukoht);
+            if (soodavEttur.onValge()) {
+                valgedNupud.remove(soodavEttur);
+            } else {
+                mustadNupud.remove(soodavEttur);
             }
+            koikNupud.remove(soodavEttur);
         }
+
+        if (liigutatavNupp.onValge()) {
+            kaiguNumber++;
+        }
+
+        if (liigutatavNupp instanceof Ettur && !liigutatavNupp.KasOnLiikunud()) {
+            ((Ettur) liigutatavNupp).setEsimeseKaiguNumber(kaiguNumber);
+        }
+
+        liigutatavNupp.liiguta(deltaKaik);
+        liigutatavNupp.setOnLiikunud(true);
+
         // kui ettur on esimesel või viimasel real (ehk 7|y), siis lipp asemele
         if (uusAsukoht.getY()%7==0){
             Malenupp potensiaalneEttur = misNuppRuudul(uusAsukoht);

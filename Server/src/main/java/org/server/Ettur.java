@@ -6,6 +6,15 @@ import java.util.List;
 public class Ettur extends Malenupp {
     private final List<List<Asukoht>> esimeneKaik = new ArrayList<>();
     private final List<List<Asukoht>> hilisemKaik = new ArrayList<>();
+    private int esimeseKaiguNumber = 0;
+
+    public int getEsimeseKaiguNumber() {
+        return esimeseKaiguNumber;
+    }
+
+    public void setEsimeseKaiguNumber(int esimeseKaiguNumber) {
+        this.esimeseKaiguNumber = esimeseKaiguNumber;
+    }
 
     public Ettur(int x, int y, boolean onValge) {
         super(x, y, onValge);
@@ -25,6 +34,5 @@ public class Ettur extends Malenupp {
         else{
             return hilisemKaik;
         }
-
     }
 }

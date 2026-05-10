@@ -12,6 +12,10 @@ public abstract class Malenupp {
         return onLiikunud;
     }
 
+    public void setOnLiikunud(boolean onLiikunud) {
+        this.onLiikunud = onLiikunud;
+    }
+
     public Malenupp(Asukoht asukoht, boolean onValge){
         this.asukoht = asukoht;
         this.onValge = onValge;
@@ -23,11 +27,9 @@ public abstract class Malenupp {
 
     public void liiguta(Asukoht muutus){
         this.asukoht.liiguta(muutus);
-        this.onLiikunud = true;
     }
     public void liiguta(int deltaX, int deltaY){
         this.asukoht.liiguta(new Asukoht(deltaX, deltaY));
-        this.onLiikunud = true;
     }
 
     /**
