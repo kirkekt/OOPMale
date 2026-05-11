@@ -37,7 +37,7 @@ public class GameLoop implements Runnable{
                 System.out.println("Proovin käiku: " + kordinaadid[0] + "," + kordinaadid[1] + " -> " + kordinaadid[2] + "," + kordinaadid[3]);
 
                 Suhtlus.saadaKaik(in, out, kordinaadid);
-                if (in.readInt() == Suhtlus.illegaalneKaik) {
+                if (in.readInt() == Suhtlus.error) {
                     //lauaVaade.klikidReset();
                     continue;
                 } else {

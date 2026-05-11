@@ -4,31 +4,52 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 public class Suhtlus {
 
     /* ------- koodid ------- */
-    public static final int manguLopp = 256;
-    public static final int manguAlgus = 128;
-    public static final int kaiguKood = 129;
-    public static final int illegaalneKaik = 0;
-    public static final int kaikOk = 1;
+    public static final byte manguLopp = 127;
+    public static final byte manguAlgus = 126;
+    public static final byte kaiguKood = 125;
+    public static final byte klikkTehti = 124;
+    public static final byte lauaOlek = 123;
+    public static final byte voimalikudKaigud = 122;
+    // vastused
+    public static final byte error = 0;
+    public static final byte koikOk = 1;
 
     /* ------- sisud ------- */
-    public static final int valge = 1;
-    public static final int must = 2;
-    public static final int kaotus = -1;
-    public static final int viik = 0;
-    public static final int võit = 1;
+    // nupud laua olekus
+    public static final byte vEttur = 1;
+    public static final byte mEttur = 2;
+    public static final byte vVanker = 3;
+    public static final byte mVanker = 4;
+    public static final byte vRatsu= 5;
+    public static final byte mRatsu = 6;
+    public static final byte vOda= 7;
+    public static final byte mOda = 8;
+    public static final byte vLipp = 9;
+    public static final byte mLipp = 10;
+    public static final byte vKuningas = 11;
+    public static final byte mKuningas = 12;
+    // mängu algus
+    public static final byte valge = 1;
+    public static final byte must = 2;
+    // mängu lõpp
+    public static final byte kaotus = -1;
+    public static final byte viik = 0;
+    public static final byte võit = 1;
 
 
     // LUGEMISED
-    private static int[] loeKoik(DataInputStream in, DataOutputStream out) throws IOException {
+    private static byte[] loeKoik(DataInputStream in, DataOutputStream out) throws IOException {
         int pikkus = in.readInt();
-        int[] tagastus = new int[pikkus];
+        byte[] tagastus = new byte[pikkus];
 
         for (int i = 0; i < pikkus; i++) {
-            tagastus[i] = in.readInt();
+            tagastus[i] = in.readByte();
         }
         System.out.println("Sain serverilt: pikkus - " + pikkus + ", sisu - " + Arrays.toString(tagastus));
         out.writeInt(1);
@@ -36,7 +57,7 @@ public class Suhtlus {
     }
 
     public static boolean kasValge(DataInputStream in, DataOutputStream out) throws IOException {
-        int[] info = loeKoik(in, out);
+        byte[] info = loeKoik(in, out);
         if (info[0] != manguAlgus) {
             throw new RuntimeException("Oodatud \"mängu algus\", saadud kood: " + info[0]);
         }
@@ -51,7 +72,17 @@ public class Suhtlus {
         return kustutaKood(sisse);
     }
 
-
+    public static Set<Nupp> loeLaud(DataInputStream in, DataOutputStream out) throws IOException {
+        Set<Nupp> tagastus = new HashSet<Nupp>();
+        byte[] info = loeKoik(in, out);
+        if (info[0] != lauaOlek) {
+            throw new RuntimeException("Oodatud \"laua olek\", kuid saadud: " + info[0]);
+        }
+        info = kustutaKood(info);
+        for (int i = 0; i < info.length; i+=3) {
+            tagastus.add(new Nupp())
+        }
+    }
 
     // SAATMISED
     public static void saadaTegevus(DataInputStream in, DataOutputStream out, int kood, int[] sisu) throws IOException {
@@ -74,8 +105,8 @@ public class Suhtlus {
 
 
     // ABI
-    private static int[] kustutaKood(int[] n) {
-        int[] tagastus = new int[n.length - 1];
+    private static byte[] kustutaKood(byte[] n) {
+        byte[] tagastus = new byte[n.length - 1];
         for (int i = 1; i < n.length; i++) {
             tagastus[i-1] = n[i];
         }

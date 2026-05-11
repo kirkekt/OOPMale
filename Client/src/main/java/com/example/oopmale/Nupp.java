@@ -7,11 +7,59 @@ public class Nupp {
     private boolean valge;
     private String malend;
 
-    public Nupp(int x, int y, boolean valge, String malend) {
+    public Nupp(int x, int y, byte kood) {
         this.x = x;
         this.y = y;
-        this.valge = valge;
-        this.malend = malend;
+        switch (kood) {
+            case Suhtlus.vEttur:
+                valge = true;
+                malend = "ettur";
+                break;
+            case Suhtlus.mEttur:
+                valge = false;
+                malend = "ettur";
+                break;
+            case Suhtlus.vVanker:
+                valge = true;
+                malend = "vanker";
+                break;
+            case Suhtlus.mVanker:
+                valge = false;
+                malend = "vanker";
+                break;
+            case Suhtlus.vRatsu:
+                valge = true;
+                malend = "ratsu";
+                break;
+            case Suhtlus.mRatsu:
+                valge = false;
+                malend = "ratsu";
+                break;
+            case Suhtlus.vOda:
+                valge = true;
+                malend = "oda";
+                break;
+            case Suhtlus.mOda:
+                valge = false;
+                malend = "oda";
+                break;
+            case Suhtlus.vLipp:
+                valge = true;
+                malend = "lipp";
+                break;
+            case Suhtlus.mLipp:
+                valge = false;
+                malend = "lipp";
+                break;
+            case Suhtlus.vKuningas:
+                valge = true;
+                malend = "kuningas";
+                break;
+            case Suhtlus.mKuningas:
+                valge = false;
+                malend = "kuningas";
+                break;
+        }
     }
 
     public boolean onValge() {
