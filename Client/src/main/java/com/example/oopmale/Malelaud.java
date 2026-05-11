@@ -34,6 +34,48 @@ public class Malelaud {
         koikNupud.addAll(mustadNupud);
     }
 
+    private Nupp misNuppRuudul(int x, int y) {
+        for (Nupp malenupp : koikNupud) {
+            if (malenupp.kasAsubSiin(x, y)) {
+                return malenupp;
+            }
+        }
+        return null;
+    }
+
+    public boolean kasProovitakseVangerdada(Nupp liigutatavNupp, int uusX, int uusY) {
+        int nupuX = liigutatavNupp.getX();
+        int nupuY = liigutatavNupp.getY();
+
+        if (!(liigutatavNupp.getMalend().equals("kuningas"))) {
+            return false;
+        }
+        if (!(uusX == 2 || uusX == 6)) {
+            return false;
+        }
+        if (Math.abs(nupuX - uusX) != 2) {
+            return false;
+        }
+        return uusY == nupuY;
+    }
+
+    public Nupp leiaVangerduseVanker(Nupp kuningas, int uusX) {
+        if (uusX == 2) {
+            if (kuningas.onValge()) {
+                return misNuppRuudul(0, 0);
+            } else {
+                return misNuppRuudul(0, 7);
+            }
+        } else if (uusX == 6) {
+            if (kuningas.onValge()) {
+                return misNuppRuudul(7, 0);
+            } else {
+                return misNuppRuudul(7, 7);
+            }
+        }
+        return null;
+    }
+
     /**
      * Liigutab nupu algruudult lõppruutu. Kui lõppruudul on nupp, siis kustutab ta ära. Ei tee ühtegi kontrolli.
      * @param kaik
@@ -54,8 +96,21 @@ public class Malelaud {
                 break;
             }
         }
+
         for (Nupp malenupp : koikNupud){
             if (malenupp.kasAsubSiin(vanaX, vanaY)){
+                if (kasProovitakseVangerdada(malenupp, uusX, uusY)) {
+                    Nupp vanker = leiaVangerduseVanker(malenupp, uusX);
+                    if (vanker == null)
+                        throw new RuntimeException("Vangerduse vankrit ei leitud");
+                    if (vanker.getX() == 7) {
+                        // lühike vangerdus
+                        vanker.liiguta(5, vanker.getY());
+                    } else {
+                        // pikk vangerdus
+                        vanker.liiguta(3, vanker.getY());
+                    }
+                }
                 malenupp.liiguta(uusX, uusY);
             }
         }
