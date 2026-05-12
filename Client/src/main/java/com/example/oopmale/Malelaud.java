@@ -56,7 +56,7 @@ public class Malelaud {
         if (Math.abs(nupuX - uusX) != 2) {
             return false;
         }
-        return uusY == nupuY;
+        return true;
     }
 
     public Nupp leiaVangerduseVanker(Nupp kuningas, int uusX) {
@@ -100,6 +100,7 @@ public class Malelaud {
         for (Nupp malenupp : koikNupud){
             if (malenupp.kasAsubSiin(vanaX, vanaY)){
                 if (kasProovitakseVangerdada(malenupp, uusX, uusY)) {
+
                     Nupp vanker = leiaVangerduseVanker(malenupp, uusX);
                     if (vanker == null)
                         throw new RuntimeException("Vangerduse vankrit ei leitud");

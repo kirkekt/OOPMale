@@ -28,21 +28,9 @@ public class LauaVaade {
         malelaud = laud;
         uuendaLaud();
     }
-    // pmst minu meelest pole seda enam vaja, igaks juhuks jätan praegu alles tho
-    private void nuppKlikiti(Nupp nupp) {
-        int x = nupp.getX();
-        int y = nupp.getY();
-
-        if (esimeneX == null) {
-            esimeneX = x;
-            esimeneY = y;
-            System.out.println("Esimene klikk: " + x + ", " + y);
-        } else {
-            teeTeineKlikk(x, y);
-        }
-    }
 
     private void ruutKlikiti(int x, int y) {
+        System.out.println("Vajutasid ruutu (x,y): " + x +", "+ y);
         if (esimeneX != null) {
             teeTeineKlikk(x, y);
         }
@@ -66,17 +54,19 @@ public class LauaVaade {
         for (int rida = 0; rida < 9; rida++) {
             for (int veerg = 0; veerg < 9; veerg++) {
 
-                int reaNumber;
+                int reaNumber, veeruNumber;
                 if (onValge) {
                     reaNumber = 9 - rida;
+                    veeruNumber = veerg;
                 } else {
                     reaNumber = rida;
+                    veeruNumber = 9-veerg;
                 }
 
                 if (veerg == 0 && rida == 0) {
                     // top-left empty corner
                 } else if (rida == 0) {
-                    Label täht = new Label(Character.toString((char) ('A' + veerg - 1)));
+                    Label täht = new Label(Character.toString((char) (onValge? 'A' + veerg - 1 : 'A' - veerg + 8)));
                     täht.setMaxWidth(Double.MAX_VALUE);
                     täht.setAlignment(Pos.CENTER);
                     ruudustik.add(täht, veerg, rida);
@@ -95,7 +85,7 @@ public class LauaVaade {
                         ruut.setFill(Color.GREEN);
                     }
 
-                    int x = veerg - 1;
+                    int x = veeruNumber - 1;
                     int y = reaNumber - 1;
 
 
@@ -119,7 +109,6 @@ public class LauaVaade {
         ImageView vaade = new ImageView(pilt);
         GridPane.setHalignment(vaade, HPos.CENTER);
         GridPane.setValignment(vaade, VPos.CENTER);
-        //vaade.setOnMouseClicked(e -> nuppKlikiti(nupp));
         vaade.setMouseTransparent(true);
         return vaade;
     }
@@ -129,7 +118,7 @@ public class LauaVaade {
         ehitaLaud();
 
         malelaud.getKoikNupud().forEach(
-                malend -> ruudustik.add(getPilt(malend), malend.getX() + 1, onValge ? 8 - malend.getY() : malend.getY() + 1)
+                malend -> ruudustik.add(getPilt(malend), onValge ? malend.getX() + 1 : 8 - malend.getX(), onValge ? 8 - malend.getY() : malend.getY() + 1)
         );
     }
 
