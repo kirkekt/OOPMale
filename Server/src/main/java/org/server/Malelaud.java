@@ -476,6 +476,34 @@ public class Malelaud {
     }
 
 
+    public List<Asukoht> nupuVoimalikudKaigud(Malenupp malenupp) {
+        List<Asukoht> voimalikudKaigud = new ArrayList<>();
+        for (List<Asukoht> iSuund : malenupp.kaiguDeltad()) {
+            for (Asukoht iDelta : iSuund) {
+                if (kasLubatudKaik(malenupp.OnValge(), new int[]{
+                        malenupp.getX(),
+                        malenupp.getY(),
+                        malenupp.getX() + iDelta.getX(),
+                        malenupp.getY() + iDelta.getY()
+                })) voimalikudKaigud.add(malenupp.getAsukoht().liida(iDelta));
+            }
+        }
+        return voimalikudKaigud;
+    }
+
+    public List<List<Asukoht>> koikVoimalikudKaigud(Boolean onValge){
+        List<List<Asukoht>> koikKaigud = new ArrayList<>();
+        List<Malenupp> nupud = onValge?valgedNupud:mustadNupud;
+        for (Malenupp malenupp : nupud) {
+            if (malenupp.isElus()){
+                for (Asukoht asukoht : nupuVoimalikudKaigud(malenupp)) {
+                    koikKaigud.add(List.of(malenupp.getAsukoht(), asukoht));
+                }
+            }
+        }
+        return koikKaigud;
+    }
+
     public List<Malenupp> getKoikNupud() {
         return koikNupud;
     }
