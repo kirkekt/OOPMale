@@ -59,8 +59,6 @@ public class Mang implements Runnable {
                 }
 
                 if (malelaud.kasLubatudKaik(valgeKord, kaik)) {
-                    System.out.println("Debugidebugi, mis on soovitud kaik" + kaik[0] +" " + kaik[1] + " " + kaik[2] + " " + kaik[3]);
-                    System.out.println("DebugiDebugi, mis on seal nüüd" + malelaud.tabelisEsitus[kaik[0]][kaik[1]]);
                     malelaud.teeKaik(kaik);
                     if (malelaud.asendatavaEtturiAsukoht() != null){
                         malelaud.asendaEttur("Lipp");

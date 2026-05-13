@@ -10,7 +10,7 @@ public class Malelaud {
     private List<Malenupp> koikNupud = new ArrayList<>();
     private List<Malenupp> valgedNupud = new ArrayList<>();
     private List<Malenupp> mustadNupud = new ArrayList<>();
-    private Asukoht enPassantVoimalus = new Asukoht(-1,-1); // Kaks korda edasi käinud etturi asukoht või -1 -1.
+    private Asukoht enPassantVoimalus = null; // kui liiguti eelmine käik käis ettur kaks sammu edasi, siis tema asukoht, muidu null;
     private Map<BigInteger, Integer> seisudKordsusega = new HashMap<>();
     public Malenupp[][] tabelisEsitus = new Malenupp[8][8]; // malenupp[x][y] -> nupp mis asub ruudul (x,y)
     private Malenupp asendatavEttur = null;
@@ -54,16 +54,23 @@ public class Malelaud {
             return false;
         if (liigutatavNupp.onValge()!=valgeKaik)
             return false; // nupp peab õiget värvi olema
-        //System.out.println("Debugidebugi mis on liigutatav nupp: " + liigutatavNupp);
+
         if (kasProovitakseVangerdada(liigutatavNupp, uusAsukoht)) {
             return kasVangerdusVoimalik((Kuningas) liigutatavNupp, uusAsukoht);
         }
         if (!voimalikLiigutada(liigutatavNupp, uusAsukoht)){
             return false; // kui nupp ei saa käiku teha, siis käik on võimatu
         }
-        System.out.println("Mis on soovitud nupp?" + liigutatavNupp);
-        System.out.println("Miks ma siin olen?");
+
         // kontrollime ega tuld ei teki peale käiku:
+        // NB: vangerdamist siin eraldi käsitlema ei pea, sest kasVangerdusVoimalik juba kontrollib, et kuningas ei liigu läbi tule jne.
+        // kui vangerdada, siis vanker on juba laua servas, seega tema nö tagant ei saa uut tuld välja tulla, seega siin liigutamata jääv vanker ei saa tuld varjata.
+        Malenupp enPassantMalu = null;
+        if (enPassantKatse(liigutatavNupp, uusAsukoht)){
+            enPassantMalu = misNuppRuudul(enPassantVoimalus);
+            enPassantMalu.setElus(false);
+            tabelisEsitus[enPassantMalu.getX()][enPassantMalu.getY()] = null;
+        }
         Malenupp araVoetavNupp = misNuppRuudul(uusAsukoht);
         tabelisEsitus[uusAsukoht.getX()][uusAsukoht.getY()] = tabelisEsitus[vanaAsukoht.getX()][vanaAsukoht.getY()];
         tabelisEsitus[vanaAsukoht.getX()][vanaAsukoht.getY()] = null;
@@ -76,6 +83,10 @@ public class Malelaud {
         liigutatavNupp.setOnLiikunud(oliLiikunud);
         tabelisEsitus[vanaAsukoht.getX()][vanaAsukoht.getY()] = tabelisEsitus[uusAsukoht.getX()][uusAsukoht.getY()];
         tabelisEsitus[uusAsukoht.getX()][uusAsukoht.getY()] = araVoetavNupp;
+        if (enPassantKatse(liigutatavNupp, uusAsukoht)){
+            enPassantMalu.setElus(true);
+            tabelisEsitus[enPassantMalu.getX()][enPassantMalu.getY()] = enPassantMalu;
+        }
         return !vastus;
 
 
@@ -102,6 +113,11 @@ public class Malelaud {
 
         if (oigeSuunaDeltad == null)
             return false; // Nupul võimatu sellist käiku teha
+
+        if (enPassantKatse(nupp, sihtAsukoht) && !sobivEnPassantKatse(nupp, sihtAsukoht)){
+            return false;
+        }
+
 
         for (Asukoht vaadeldavDelta : oigeSuunaDeltad) {
             Asukoht vaadeldavAsukoht = algus.liida(vaadeldavDelta);
@@ -209,6 +225,33 @@ public class Malelaud {
     }
 
     /**
+     * tagastab, kas antud käik saab üldse olla en passant.
+     * (en passant kui etturikäik, mis liigub diagonaalselt tühjale ruudule)
+     * @return
+     */
+    public boolean enPassantKatse(Malenupp nupp, Asukoht sihtAsukoht){
+        if (nupp instanceof Ettur){
+            return nupp.getX() != sihtAsukoht.getX() && misNuppRuudul(sihtAsukoht) == null;
+        }
+        return false;
+    }
+
+    /**
+     * Eeldab, et tegemist on en passant katsega. tagastab true, kui tegemist on sobiva käiguga. NB: funktsioon eeldab siiski, et deltakaik sisaldub etturi kaikudes
+     * @param nupp
+     * @param sihtAsukoht
+     * @return
+     */
+    public boolean sobivEnPassantKatse(Malenupp nupp, Asukoht sihtAsukoht){
+        // vastane pidi etturit kaks sammu edasi liigutama
+        if (enPassantVoimalus==null){
+            return false;
+        }
+        // Kui ettur üritab en passant võtta, siis peab ta olema kõrvuti kaks sammu edasi liikunud nupuga ja liikuma samasse tulpa
+        return (nupp.getY() == enPassantVoimalus.getY() && sihtAsukoht.getX() == enPassantVoimalus.getX());
+
+    }
+    /**
      * Kontrollib, kas vaadeldav mängija on tule all
      * @param valgeKaik
      * @return
@@ -255,8 +298,6 @@ public class Malelaud {
         Malenupp voetavNupp = misNuppRuudul(uusAsukoht);
 
         if (voetavNupp != null) voetavNupp.setElus(false);
-        System.out.println("Debugidebugi2 mis on liigutatav nupp: " + liigutatavNupp);
-
         if (kasProovitakseVangerdada(liigutatavNupp, uusAsukoht)){
             Malenupp vanker = leiaVangerduseVanker((Kuningas) liigutatavNupp, uusAsukoht);
             if (vanker == null)
@@ -271,10 +312,18 @@ public class Malelaud {
             }
             tabelisEsitus[vanker.getX()][vanker.getY()] = vanker;
         }
+
+        if (enPassantKatse(liigutatavNupp, uusAsukoht)){
+            misNuppRuudul(enPassantVoimalus).setElus(false);
+            tabelisEsitus[enPassantVoimalus.getX()][enPassantVoimalus.getY()] = null;
+        }
+        enPassantVoimalus = null;
+        if (liigutatavNupp instanceof Ettur && (deltaKaik.getY() == 2 || deltaKaik.getY() == -2)){
+            enPassantVoimalus = liigutatavNupp.getAsukoht();
+        }
         tabelisEsitus[liigutatavNupp.getX()][liigutatavNupp.getY()] = null;
         liigutatavNupp.liiguta(deltaKaik);
         tabelisEsitus[liigutatavNupp.getX()][liigutatavNupp.getY()] = liigutatavNupp;
-
         // kui ettur on esimesel või viimasel real (ehk 7|y), siis küsi hiljem, keda asendada tahad
         asendatavEttur = null;
         if (uusAsukoht.getY()%7==0){
@@ -284,6 +333,7 @@ public class Malelaud {
                 asendatavEttur.setElus(false);
             }
         }
+
 
     }
     public Asukoht asendatavaEtturiAsukoht(){
