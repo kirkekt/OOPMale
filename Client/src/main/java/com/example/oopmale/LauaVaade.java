@@ -10,56 +10,33 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 
 public class LauaVaade {
     private GridPane ruudustik = new GridPane();
-    private Malelaud malelaud;
-    private BlockingQueue<int[]> kaigud;
-
-    private Integer esimeneX = null;
-    private Integer esimeneY = null;
-
     private boolean onValge;
+    private boolean minuKaik;
+    private DataInputStream in;
+    private DataOutputStream out;
 
-    public LauaVaade(Malelaud laud, boolean onValge, BlockingQueue<int[]> kaigud) {
+    public LauaVaade(boolean onValge) {
         this.onValge = onValge;
-        this.kaigud = kaigud;
-        malelaud = laud;
-        uuendaLaud();
-    }
-    // pmst minu meelest pole seda enam vaja, igaks juhuks jätan praegu alles tho
-    private void nuppKlikiti(Nupp nupp) {
-        int x = nupp.getX();
-        int y = nupp.getY();
-
-        if (esimeneX == null) {
-            esimeneX = x;
-            esimeneY = y;
-            System.out.println("Esimene klikk: " + x + ", " + y);
-        } else {
-            teeTeineKlikk(x, y);
-        }
+        this.minuKaik = onValge;
     }
 
     private void ruutKlikiti(int x, int y) {
-        if (esimeneX != null) {
-            teeTeineKlikk(x, y);
+        if (minuKaik) {
+            try {
+                int serveriVastus = Suhtlus.saadaKlikk(in, out, new int[]{x, y});
+                if (serveriVastus == Suhtlus.kaiguLopp) minuKaik = false;
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
-        esimeneX = x;
-        esimeneY = y;
-
-    }
-
-    private void teeTeineKlikk(int uusX, int uusY) {
-
-        try {
-            kaigud.put(new int[]{esimeneX, esimeneY, uusX, uusY});
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-
-        System.out.println("Teine klikk: " + uusX + ", " + uusY);
     }
 
     private void ehitaLaud() {
@@ -99,7 +76,7 @@ public class LauaVaade {
                     int y = reaNumber - 1;
 
 
-                    ruut.setOnMouseClicked(e -> ruutKlikiti(x, y));
+                    ruut.setOnMouseClicked(_ -> ruutKlikiti(x, y));
 
                     ruudustik.add(ruut, veerg, rida);
                 }
@@ -119,22 +96,26 @@ public class LauaVaade {
         ImageView vaade = new ImageView(pilt);
         GridPane.setHalignment(vaade, HPos.CENTER);
         GridPane.setValignment(vaade, VPos.CENTER);
-        //vaade.setOnMouseClicked(e -> nuppKlikiti(nupp));
         vaade.setMouseTransparent(true);
         return vaade;
     }
 
-    public void uuendaLaud() {
+    public void uuendaLaud() throws IOException {
+        Set<Nupp> lauaOlek = Suhtlus.loeLaud(in, out);
+        if (lauaOlek == null) mangLabi();
         ruudustik.getChildren().clear();
         ehitaLaud();
 
-        malelaud.getKoikNupud().forEach(
+        if (lauaOlek == null) return;
+
+        lauaOlek.forEach(
                 malend -> ruudustik.add(getPilt(malend), malend.getX() + 1, onValge ? 8 - malend.getY() : malend.getY() + 1)
         );
+        minuKaik = true;
     }
 
-    public void klikidReset() {
-        esimeneX = null;
-        esimeneY = null;
+    public void mangLabi() throws IOException {
+        int tulemus = Suhtlus.kusiManguTulemust(in, out);
+        // tee midagi mõistlikku - näita mäng läbi teksti vms
     }
 }

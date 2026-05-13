@@ -11,26 +11,21 @@ public class GameLoop implements Runnable{
     boolean onValge;
     DataInputStream in;
     DataOutputStream out;
-    Malelaud malelaud;
     LauaVaade lauaVaade;
     BlockingQueue<int[]> kaigud;
 
-    public GameLoop(boolean onValge, DataInputStream in, DataOutputStream out, Malelaud malelaud, LauaVaade lauaVaade, BlockingQueue<int[]> kaigud) {
+    /*public GameLoop(boolean onValge, DataInputStream in, DataOutputStream out, LauaVaade lauaVaade, BlockingQueue<int[]> kaigud) {
         this.onValge = onValge;
         this.in = in;
         this.out = out;
-        this.malelaud = malelaud;
         this.lauaVaade = lauaVaade;
         this.kaigud = kaigud;
-    }
+    }*/
 
     @Override
     public void run() {
-        try {
-            if (!onValge) {
-                int[] vastaseKaik = Suhtlus.loeKaik(in, out);
-                malelaud.teeKaik(vastaseKaik, lauaVaade);
-            }
+        /*try {
+
             while (true) {
                 int[] kordinaadid = kaigud.take();
 
@@ -62,6 +57,6 @@ public class GameLoop implements Runnable{
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
-        }
+        }*/
     }
 }

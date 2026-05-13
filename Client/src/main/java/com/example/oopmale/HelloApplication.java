@@ -17,8 +17,6 @@ import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 
 public class HelloApplication extends Application {
 
@@ -44,29 +42,23 @@ public class HelloApplication extends Application {
 
         // Muutujate ette valmistamine
         final boolean onValge = Suhtlus.kasValge(in, out);
-        BlockingQueue<int[]> kaigud = new LinkedBlockingQueue<>();
-
+        LauaVaade lauaVaade = new LauaVaade(onValge);
 
         // Malelaua ette valmistamine
-        Malelaud malelaud = new Malelaud();
-        LauaVaade lauaVaade = new LauaVaade(malelaud, onValge, kaigud);
+        lauaVaade.uuendaLaud();
         Scene scene = new Scene(lauaVaade.getVaade(), 700, 700);
-        stage.setTitle("Male, Valge: " + onValge);
+        if (onValge) stage.setTitle("Male, Valge");
+        else stage.setTitle("Male, Must");
         stage.setScene(scene);
         stage.show();
 
         stage.setOnCloseRequest(e -> {
-            try {
-                server.close();
-            } catch (Exception e1) {
-                throw new RuntimeException(e1);
-            }
+            try {server.close();} catch (Exception e1) {throw new RuntimeException(e1);}
         });
 
-        // Alustab mängu loop-i teises threadis
-        Thread manguThread = new Thread(new GameLoop(onValge, in, out, malelaud, lauaVaade, kaigud));
-        manguThread.setDaemon(true);
-        manguThread.start();
+        while (true) {
+            lauaVaade.uuendaLaud();
+        }
 
     }
 }

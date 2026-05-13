@@ -10,46 +10,48 @@ import java.util.Set;
 public class Suhtlus {
 
     /* ------- koodid ------- */
-    public static final byte manguLopp = 127;
-    public static final byte manguAlgus = 126;
-    public static final byte kaiguKood = 125;
-    public static final byte klikkTehti = 124;
-    public static final byte lauaOlek = 123;
-    public static final byte voimalikudKaigud = 122;
+    public static final int kuidasMangLoppes = 128;
+    public static final int manguLopp = 127;
+    public static final int manguAlgus = 126;
+    public static final int kaiguKood = 125;
+    public static final int klikkTehti = 124;
+    public static final int lauaOlek = 123;
+    public static final int voimalikudKaigud = 122;
     // vastused
-    public static final byte error = 0;
-    public static final byte koikOk = 1;
+    public static final int error = 0;
+    public static final int koikOk = 1;
+    public static final int kaiguLopp = 3;
 
     /* ------- sisud ------- */
     // nupud laua olekus
-    public static final byte vEttur = 1;
-    public static final byte mEttur = 2;
-    public static final byte vVanker = 3;
-    public static final byte mVanker = 4;
-    public static final byte vRatsu= 5;
-    public static final byte mRatsu = 6;
-    public static final byte vOda= 7;
-    public static final byte mOda = 8;
-    public static final byte vLipp = 9;
-    public static final byte mLipp = 10;
-    public static final byte vKuningas = 11;
-    public static final byte mKuningas = 12;
+    public static final int vEttur = 1;
+    public static final int mEttur = 2;
+    public static final int vVanker = 3;
+    public static final int mVanker = 4;
+    public static final int vRatsu= 5;
+    public static final int mRatsu = 6;
+    public static final int vOda= 7;
+    public static final int mOda = 8;
+    public static final int vLipp = 9;
+    public static final int mLipp = 10;
+    public static final int vKuningas = 11;
+    public static final int mKuningas = 12;
     // mängu algus
-    public static final byte valge = 1;
-    public static final byte must = 2;
+    public static final int valge = 1;
+    public static final int must = 2;
     // mängu lõpp
-    public static final byte kaotus = -1;
-    public static final byte viik = 0;
-    public static final byte võit = 1;
+    public static final int kaotus = -1;
+    public static final int viik = 0;
+    public static final int võit = 1;
 
 
     // LUGEMISED
-    private static byte[] loeKoik(DataInputStream in, DataOutputStream out) throws IOException {
+    private static int[] loeKoik(DataInputStream in, DataOutputStream out) throws IOException {
         int pikkus = in.readInt();
-        byte[] tagastus = new byte[pikkus];
+        int[] tagastus = new int[pikkus];
 
         for (int i = 0; i < pikkus; i++) {
-            tagastus[i] = in.readByte();
+            tagastus[i] = in.readInt();
         }
         System.out.println("Sain serverilt: pikkus - " + pikkus + ", sisu - " + Arrays.toString(tagastus));
         out.writeInt(1);
@@ -57,7 +59,7 @@ public class Suhtlus {
     }
 
     public static boolean kasValge(DataInputStream in, DataOutputStream out) throws IOException {
-        byte[] info = loeKoik(in, out);
+        int[] info = loeKoik(in, out);
         if (info[0] != manguAlgus) {
             throw new RuntimeException("Oodatud \"mängu algus\", saadud kood: " + info[0]);
         }
@@ -73,14 +75,19 @@ public class Suhtlus {
     }
 
     public static Set<Nupp> loeLaud(DataInputStream in, DataOutputStream out) throws IOException {
-        Set<Nupp> tagastus = new HashSet<Nupp>();
-        byte[] info = loeKoik(in, out);
-        if (info[0] != lauaOlek) {
-            throw new RuntimeException("Oodatud \"laua olek\", kuid saadud: " + info[0]);
-        }
-        info = kustutaKood(info);
-        for (int i = 0; i < info.length; i+=3) {
-            tagastus.add(new Nupp())
+        Set<Nupp> tagastus = new HashSet<>();
+        int[] info = loeKoik(in, out);
+        switch (info[0]) {
+            case lauaOlek:
+                info = kustutaKood(info);
+                for (int i = 0; i < info.length; i+=3) {
+                    tagastus.add(new Nupp(info[i], info[i+1], info[i+2]));
+                }
+                return tagastus;
+            case manguLopp:
+                return null;
+            default:
+                throw new RuntimeException("Oodatud \"laua olek\", kuid saadud: " + info[0]);
         }
     }
 
@@ -95,18 +102,29 @@ public class Suhtlus {
         if (in.readInt() != 1) throw new RuntimeException("Ei saanud serverilt OK koodi");
     }
 
-    public static void saadaKaik(DataInputStream in, DataOutputStream out, int[] kaik) throws IOException {
-        saadaTegevus(in, out, kaiguKood, kaik);
+    public static int saadaKlikk(DataInputStream in, DataOutputStream out, int[] klikk) throws IOException {
+        System.out.println("Saadan: " + "pikkus - " + (1+klikk.length) + ", kood - " + klikkTehti + ", sisu - " + Arrays.toString(klikk));
+        out.writeInt(1 + klikk.length);
+        out.writeInt(klikkTehti);
+        for (int i : klikk) {
+            out.writeInt(i);
+        }
+        int serveriTagastus = in.readInt();
+        if (in.readInt() == 0) throw new RuntimeException("Sain serverilt error koodi");
+        return serveriTagastus;
     }
 
-    public static void saadaManguLopp(DataInputStream in, DataOutputStream out, int tulemus) throws IOException {
-        saadaTegevus(in, out, manguLopp, new int[]{tulemus});
+    public static int kusiManguTulemust(DataInputStream in, DataOutputStream out) throws IOException {
+        System.out.println("Saadan: pikkus - 1, kood - " + kuidasMangLoppes);
+        out.writeInt(1);
+        out.writeInt(kuidasMangLoppes);
+        if (in.readInt() != 1) throw new RuntimeException("Server tagastas mängu lõpus liiga pika sõnumi");
+        return in.readInt();
     }
-
 
     // ABI
-    private static byte[] kustutaKood(byte[] n) {
-        byte[] tagastus = new byte[n.length - 1];
+    private static int[] kustutaKood(int[] n) {
+        int[] tagastus = new int[n.length - 1];
         for (int i = 1; i < n.length; i++) {
             tagastus[i-1] = n[i];
         }

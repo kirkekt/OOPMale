@@ -7,7 +7,7 @@ public class Nupp {
     private boolean valge;
     private String malend;
 
-    public Nupp(int x, int y, byte kood) {
+    public Nupp(int kood, int x, int y) {
         this.x = x;
         this.y = y;
         switch (kood) {
