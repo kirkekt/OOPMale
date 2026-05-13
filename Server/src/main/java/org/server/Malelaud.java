@@ -11,9 +11,10 @@ public class Malelaud {
     private List<Malenupp> valgedNupud = new ArrayList<>();
     private List<Malenupp> mustadNupud = new ArrayList<>();
     private Asukoht enPassantVoimalus = null; // kui liiguti eelmine käik käis ettur kaks sammu edasi, siis tema asukoht, muidu null;
-    private Map<BigInteger, Integer> seisudKordsusega = new HashMap<>();
+    private Map<BigInteger, Integer> seisudKordsusega = new HashMap<>(Map.of(new BigInteger("1712277703481438167266596593165792007111605184911878924740611116537301490"), 1)); //algseisu hash
     public Malenupp[][] tabelisEsitus = new Malenupp[8][8]; // malenupp[x][y] -> nupp mis asub ruudul (x,y)
     private Malenupp asendatavEttur = null;
+    private int poolKaikudeLoendaja = 0;
     public Malelaud() {
         for (int x = 0; x < 8; x++) {
             valgedNupud.add(new Ettur(x, 1, true));
@@ -283,7 +284,9 @@ public class Malelaud {
     }
 
     private Malenupp misNuppRuudul(Asukoht asukoht) {
-        return tabelisEsitus[asukoht.getX()][asukoht.getY()];
+        if (0 <= asukoht.getX() && asukoht.getX() < 8 && 0 <= asukoht.getY() && asukoht.getY()<8)
+            return tabelisEsitus[asukoht.getX()][asukoht.getY()];
+        return null;
     }
 
     /**
@@ -296,7 +299,8 @@ public class Malelaud {
         Asukoht deltaKaik = uusAsukoht.lahuta(algneAsukoht);
         Malenupp liigutatavNupp = misNuppRuudul(algneAsukoht);
         Malenupp voetavNupp = misNuppRuudul(uusAsukoht);
-
+        if (!(liigutatavNupp instanceof Ettur) && voetavNupp==null) poolKaikudeLoendaja = 0;
+        poolKaikudeLoendaja ++;
         if (voetavNupp != null) voetavNupp.setElus(false);
         if (kasProovitakseVangerdada(liigutatavNupp, uusAsukoht)){
             Malenupp vanker = leiaVangerduseVanker((Kuningas) liigutatavNupp, uusAsukoht);
@@ -372,7 +376,7 @@ public class Malelaud {
      * @return
      */
     int mangLabi(boolean valgeKaik){
-        if (seisudKordsusega.containsValue(3))
+        if (seisudKordsusega.containsValue(3) || poolKaikudeLoendaja == 100)
             return 67;
         List<Malenupp> vaadeldavadNupud = valgeKaik? valgedNupud : mustadNupud;
         for (Malenupp iMalenupp : vaadeldavadNupud) {
@@ -387,8 +391,7 @@ public class Malelaud {
                                     iMalenupp.getAsukoht().getY() + iKaik.getY()
                             }
                     )){
-                        //System.out.println(iMalenupp);
-                        System.out.println(iMalenupp.getAsukoht().getX() + iKaik.getX() + " " + iMalenupp.getAsukoht().getY() + iKaik.getY());
+                        System.out.println("Kaik mida teha saab on: " + iMalenupp.getAsukoht() + iMalenupp.getAsukoht().liida(iKaik));
                         return 0; // mängija saab mingi käigu teha, mäng ei ole läbi
                     }
                 }
@@ -421,13 +424,55 @@ public class Malelaud {
         }
         return vaartus;
     }
+
     private BigInteger seisuSumma(){
         BigInteger summa = BigInteger.ZERO;
         for (int iPos = 0; iPos < 64; iPos++) {
             int nupuVaartus = nupuVaartusSeisuks(misNuppRuudul(new Asukoht(iPos/8, iPos%8)));
             summa = summa.add(BigInteger.valueOf(nupuVaartus).multiply(BigInteger.valueOf(13).pow(iPos)));
         }
+        // on 9 erinevat võimalust, üks pool saab vangerdada nullil, ühel või kahel erineval moel mingist seisust alates, kokku 3*3
+        int vangerduseVaartus = 0;
+        int kuningasSaabVangerdada = 0;
+        int liigutamataVankreid = 0;
+        for (Malenupp malenupp : mustadNupud) {
+            if (malenupp instanceof Kuningas && !malenupp.isOnLiikunud()){
+                kuningasSaabVangerdada = 1;
+            }
+            if (malenupp instanceof Vanker && !malenupp.isOnLiikunud()){
+                liigutamataVankreid += 1;
+            }
+            vangerduseVaartus += kuningasSaabVangerdada * liigutamataVankreid;
+        }
+        kuningasSaabVangerdada = 0;
+        liigutamataVankreid = 0;
+
+        for (Malenupp malenupp : valgedNupud) {
+            if (malenupp instanceof Kuningas && !malenupp.isOnLiikunud()){
+                kuningasSaabVangerdada = 1;
+            }
+            if (malenupp instanceof Vanker && !malenupp.isOnLiikunud()){
+                liigutamataVankreid += 1;
+            }
+            vangerduseVaartus += 3 * kuningasSaabVangerdada * liigutamataVankreid;
+        }
+        summa = summa.add(BigInteger.valueOf(vangerduseVaartus).multiply(BigInteger.valueOf(13).pow(64)));
+        if (enPassantVoimalus!= null){
+            Malenupp kandidaat1 = misNuppRuudul(enPassantVoimalus.liida(new Asukoht(1, 0)));
+            Malenupp kandidaat2 = misNuppRuudul(enPassantVoimalus.liida(new Asukoht(-1, 0)));
+            if (kandidaat1 instanceof Ettur && kandidaat1.onValge() != misNuppRuudul(enPassantVoimalus).onValge()
+                || kandidaat2 instanceof Ettur && kandidaat2.onValge() != misNuppRuudul(enPassantVoimalus).onValge())
+                    summa = summa.add(BigInteger.valueOf(13).pow(65));
+        }
         return summa;
+    }
+
+    public void uuendaSeisuLoendur(){
+        BigInteger seisuSumma = seisuSumma();
+        if (!seisudKordsusega.containsKey(seisuSumma)){
+            seisudKordsusega.put(seisuSumma, 0);
+        }
+        seisudKordsusega.replace(seisuSumma, 1 + seisudKordsusega.get(seisuSumma));
     }
 
 

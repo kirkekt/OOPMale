@@ -63,6 +63,7 @@ public class Mang implements Runnable {
                     if (malelaud.asendatavaEtturiAsukoht() != null){
                         malelaud.asendaEttur("Lipp");
                     }
+                    malelaud.uuendaSeisuLoendur();
                     Suhtlus.saadaKaiguInfo(kaiguTegijaOut, vastaneOut, vastaneIn, kaik);
                     valgeKord = !valgeKord;
 
