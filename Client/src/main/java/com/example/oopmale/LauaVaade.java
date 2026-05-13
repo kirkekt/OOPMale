@@ -43,17 +43,19 @@ public class LauaVaade {
         for (int rida = 0; rida < 9; rida++) {
             for (int veerg = 0; veerg < 9; veerg++) {
 
-                int reaNumber;
+                int reaNumber, veeruNumber;
                 if (onValge) {
                     reaNumber = 9 - rida;
+                    veeruNumber = veerg;
                 } else {
                     reaNumber = rida;
+                    veeruNumber = 9-veerg;
                 }
 
                 if (veerg == 0 && rida == 0) {
                     // top-left empty corner
                 } else if (rida == 0) {
-                    Label täht = new Label(Character.toString((char) ('A' + veerg - 1)));
+                    Label täht = new Label(Character.toString((char) (onValge? 'A' + veerg - 1 : 'A' - veerg + 8)));
                     täht.setMaxWidth(Double.MAX_VALUE);
                     täht.setAlignment(Pos.CENTER);
                     ruudustik.add(täht, veerg, rida);
@@ -72,7 +74,7 @@ public class LauaVaade {
                         ruut.setFill(Color.GREEN);
                     }
 
-                    int x = veerg - 1;
+                    int x = veeruNumber - 1;
                     int y = reaNumber - 1;
 
 

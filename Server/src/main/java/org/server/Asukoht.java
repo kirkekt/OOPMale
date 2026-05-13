@@ -19,6 +19,18 @@ public class Asukoht {
         this.y += delta.y;
     }
 
+    /**
+     * Kui on vaja liikuda A -> B, siis kasutusviisiga B.lahuta(A) saab vektori, mida B-le liita.
+     * @param algus
+     * @return
+     */
+    public Asukoht lahuta(Asukoht algus){
+        return new Asukoht(this.getX()-algus.getX(), this.getY()- algus.getY());
+    }
+    public Asukoht liida(Asukoht delta){
+        return new Asukoht(this.getX()+delta.getX(), this.getY() + delta.getY());
+    }
+
     // setterid on erandjuhtudeks (nt vangerdamise jaoks ja katsetamise jaoks
     // ideaalis ei tohi neid kasutada
 
