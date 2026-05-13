@@ -7,10 +7,8 @@ public abstract class Malenupp {
     private Asukoht asukoht;
     private final boolean onValge;
     private boolean onLiikunud = false;
+    private boolean elus = true;
 
-    public boolean KasOnLiikunud() {
-        return onLiikunud;
-    }
 
     public Malenupp(Asukoht asukoht, boolean onValge){
         this.asukoht = asukoht;
@@ -55,7 +53,13 @@ public abstract class Malenupp {
         }
         return kaigud;
     }
+    public boolean isOnLiikunud(){
+        return onLiikunud;
+    }
 
+    public void setOnLiikunud(boolean onLiikunud){
+        this.onLiikunud = onLiikunud;
+    }
     public boolean onValge() {
         return onValge;
     }
@@ -74,6 +78,17 @@ public abstract class Malenupp {
 
     public boolean OnValge() {
         return onValge;
+    }
+
+    public int getX() { return asukoht.getX(); }
+    public int getY() { return asukoht.getY(); }
+
+    public boolean isElus() {
+        return elus;
+    }
+
+    public void setElus(boolean elus) {
+        this.elus= elus;
     }
 
     @Override

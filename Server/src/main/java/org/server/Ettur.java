@@ -19,7 +19,7 @@ public class Ettur extends Malenupp {
 
     @Override
     protected List<List<Asukoht>> kaiguDeltad() {
-        if (!super.KasOnLiikunud()){
+        if (!super.isOnLiikunud()){
             return esimeneKaik;
         }
         else{
