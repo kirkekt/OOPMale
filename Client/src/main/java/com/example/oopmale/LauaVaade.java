@@ -116,6 +116,8 @@ public class LauaVaade {
 
     public void mangLabi() throws IOException {
         int tulemus = Suhtlus.kusiManguTulemust(in, out);
-        // tee midagi mõistlikku - näita mäng läbi teksti vms
+        in.close();
+        out.close();
+        System.out.println(tulemus); // asenda mingi mõistliku mängulõpu asjaga - näita mäng läbi teksti vms
     }
 }
