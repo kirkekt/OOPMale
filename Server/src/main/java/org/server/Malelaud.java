@@ -105,7 +105,7 @@ public class Malelaud {
         Asukoht deltaKaik = sihtAsukoht.lahuta(algus);
 
         List<Asukoht> oigeSuunaDeltad = null;
-        for (List<Asukoht> suunaDeltad : nupp.kaiguDeltad()) {
+        for (List<Asukoht> suunaDeltad : nupp.voimalikudKaigud()) {
             if (suunaDeltad.contains(deltaKaik)) {
                 oigeSuunaDeltad = suunaDeltad;
                 break;
@@ -118,7 +118,10 @@ public class Malelaud {
         if (enPassantKatse(nupp, sihtAsukoht) && !sobivEnPassantKatse(nupp, sihtAsukoht)){
             return false;
         }
-
+        // Kui ettur edasi üritab liikuda, siis peab ruut tühi olema.
+        if (nupp instanceof Ettur && nupp.getX() == sihtAsukoht.getX() && misNuppRuudul(sihtAsukoht) != null){
+            return false;
+        }
 
         for (Asukoht vaadeldavDelta : oigeSuunaDeltad) {
             Asukoht vaadeldavAsukoht = algus.liida(vaadeldavDelta);
@@ -478,7 +481,7 @@ public class Malelaud {
 
     public List<Asukoht> nupuVoimalikudKaigud(Malenupp malenupp) {
         List<Asukoht> voimalikudKaigud = new ArrayList<>();
-        for (List<Asukoht> iSuund : malenupp.kaiguDeltad()) {
+        for (List<Asukoht> iSuund : malenupp.voimalikudKaigud()) {
             for (Asukoht iDelta : iSuund) {
                 if (kasLubatudKaik(malenupp.OnValge(), new int[]{
                         malenupp.getX(),
