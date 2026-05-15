@@ -27,8 +27,9 @@ public class Server {
             System.out.println("now listening on localhost:1337");
             while (true) {
                 Socket valge = ss.accept();
-                Socket must = ss.accept();
-                new Thread(new Mang(valge, must)).start();
+                Bot must = new RandoBot(false);
+                Socket botSocket = must.createSocket();
+                new Thread(new Mang(valge, botSocket)).start();
             }
         }
     }
