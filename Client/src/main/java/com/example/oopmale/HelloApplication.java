@@ -1,7 +1,11 @@
 package com.example.oopmale;
 
 import javafx.application.Application;
+import javafx.application.Platform;
+import javafx.geometry.Insets;
 import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import javax.net.ssl.SSLContext;
@@ -36,29 +40,69 @@ public class HelloApplication extends Application {
 
         SSLContext ctx = SSLContext.getInstance("TLS");
         ctx.init(null, trustManagers, null);
-        Socket server = ctx.getSocketFactory().createSocket("localhost", 1337);
-        DataOutputStream out = new DataOutputStream(server.getOutputStream());
-        DataInputStream in = new DataInputStream(server.getInputStream());
 
-        // Muutujate ette valmistamine
-        final boolean onValge = Suhtlus.kasValge(in, out);
-        LauaVaade lauaVaade = new LauaVaade(onValge);
 
-        // Malelaua ette valmistamine
-        lauaVaade.uuendaLaud();
-        Scene scene = new Scene(lauaVaade.getVaade(), 700, 700);
-        if (onValge) stage.setTitle("Male, Valge");
-        else stage.setTitle("Male, Must");
-        stage.setScene(scene);
-        stage.show();
+        // Mängu alguse stseen
 
-        stage.setOnCloseRequest(e -> {
-            try {server.close();} catch (Exception e1) {throw new RuntimeException(e1);}
+        TextField ipVäli = new TextField("localhost");
+        TextField portVäli = new TextField("1337");
+        TextField ruumikoodiVäli = new TextField("ABCD");
+        Label veateade = new Label();
+        veateade.setStyle("-fx-text-fill: red;");
+        Button ühendaNupp = new Button("Ühenda");
+        ühendaNupp.setDefaultButton(true);
+
+        ToggleGroup valik = new ToggleGroup();
+        RadioButton bott = new RadioButton("Boti vastu");
+        RadioButton inimene = new RadioButton("Inimese vastu");
+        bott.setToggleGroup(valik);
+        inimene.setToggleGroup(valik);
+        bott.setSelected(true);
+
+        Label ruumikoodLabel = new Label("Ruumikood:");
+        ruumikoodiVäli.setDisable(true);
+        valik.selectedToggleProperty().addListener((obs, oldVal, newVal) -> {
+            boolean onInimene = newVal == inimene;
+            ruumikoodiVäli.setDisable(!onInimene);
         });
 
-        while (true) {
-            lauaVaade.uuendaLaud();
-        }
+        VBox layout = new VBox(10, new Label("IP:"), ipVäli, new Label("port:"),portVäli, bott, inimene, ruumikoodLabel, ruumikoodiVäli, veateade, ühendaNupp);
+        layout.setPadding(new Insets(30));
+        stage.setScene(new Scene(layout, 400, 350));
+        stage.setTitle("Ühenda serveriga");
+        stage.show();
 
+        ühendaNupp.setOnAction(e -> new Thread(() -> {
+            try {
+                Socket server = ctx.getSocketFactory().createSocket(ipVäli.getText().trim(), Integer.parseInt(portVäli.getText().trim()));
+                DataOutputStream out = new DataOutputStream(server.getOutputStream());
+                DataInputStream in = new DataInputStream(server.getInputStream());
+
+                // Muutujate ette valmistamine
+                final boolean onValge = Suhtlus.kasValge(in, out);
+                LauaVaade lauaVaade = new LauaVaade(onValge);
+
+                // Malelaua ette valmistamine
+                lauaVaade.uuendaLaud();
+                Scene scene = new Scene(lauaVaade.getVaade(), 700, 700);
+
+                Platform.runLater(() -> {
+                    if (onValge) stage.setTitle("Male, Valge");
+                    else stage.setTitle("Male, Must");
+                    stage.setScene(scene);
+
+                    stage.setOnCloseRequest(ev -> {
+                        try { server.close(); } catch (Exception e1) { throw new RuntimeException(e1); }
+                    });
+                });
+
+                while (true) {
+                    lauaVaade.uuendaLaud();
+                }
+
+            } catch (Exception ex) {
+                Platform.runLater(() -> veateade.setText("Viga: " + ex.getMessage()));
+            }
+        }).start());
     }
 }
