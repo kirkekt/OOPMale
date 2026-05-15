@@ -303,7 +303,7 @@ public class Malelaud {
         Asukoht deltaKaik = uusAsukoht.lahuta(algneAsukoht);
         Malenupp liigutatavNupp = misNuppRuudul(algneAsukoht);
         Malenupp voetavNupp = misNuppRuudul(uusAsukoht);
-        if (!(liigutatavNupp instanceof Ettur) && voetavNupp==null) poolKaikudeLoendaja = 0;
+        if (liigutatavNupp instanceof Ettur || voetavNupp!=null) poolKaikudeLoendaja = 0;
         poolKaikudeLoendaja ++;
         if (voetavNupp != null) voetavNupp.setElus(false);
         if (kasProovitakseVangerdada(liigutatavNupp, uusAsukoht)){
