@@ -43,14 +43,15 @@ public abstract class Malenupp {
         List<List<Asukoht>> kaigud = new ArrayList<>();
 
         for (List<Asukoht> suund : kaiguDeltad()) {
-            kaigud.add(new ArrayList<>(suund));
+            ArrayList<Asukoht> lubatud = new ArrayList<>(suund);
+            lubatud.removeIf(delta ->{
+                int x = asukoht.getX() + delta.getX();
+                int y = asukoht.getY() + delta.getY();
+                return x < 0 || x > 7 || y < 0 || y > 7;
+            });
+            kaigud.add(lubatud);
+
         }        // eemaldab kõik käigud, mis lähevad lauast välja
-        for (List<Asukoht> listDelta : kaigud) {
-            listDelta.removeIf(delta -> delta.getX() + asukoht.getX() < 0
-            || delta.getX() + asukoht.getX() > 7
-            || delta.getY() + asukoht.getY() < 0
-            || delta.getY() + asukoht.getY() > 7);
-        }
         return kaigud;
     }
     public boolean isOnLiikunud(){
