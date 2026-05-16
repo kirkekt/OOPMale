@@ -74,6 +74,7 @@ public class HelloApplication extends Application {
 
         ühendaNupp.setOnAction(e -> new Thread(() -> {
             try {
+                Platform.runLater(() -> veateade.setText("Ootan ühendust."));
                 Socket server = ctx.getSocketFactory().createSocket(ipVäli.getText().trim(), Integer.parseInt(portVäli.getText().trim()));
                 DataOutputStream out = new DataOutputStream(server.getOutputStream());
                 DataInputStream in = new DataInputStream(server.getInputStream());
