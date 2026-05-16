@@ -19,4 +19,9 @@ public class Kuningas extends Malenupp {
     protected List<List<Asukoht>> kaiguDeltad() {
         return kaigud;
     }
+
+    @Override
+    public int getNupuKood() {
+        return super.onValge() ? Suhtlus.vKuningas : Suhtlus.mKuningas;
+    }
 }

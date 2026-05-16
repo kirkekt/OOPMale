@@ -21,6 +21,10 @@ public class Suhtlus {
     public static final int error = 0;
     public static final int koikOk = 1;
     public static final int kaiguLopp = 3;
+    public static final int saadanVoimalikud = 4;
+    public static final int voimalikudPuuduvad = 5;
+    public static final int saadaUusKlikk = 6;
+
 
     /* ------- sisud ------- */
     // nupud laua olekus
@@ -41,8 +45,8 @@ public class Suhtlus {
     public static final int must = 2;
     // mängu lõpp
     public static final int kaotus = -1;
-    public static final int viik = 0;
-    public static final int võit = 1;
+    public static final int viik = 67;
+    public static final int voit = 1;
 
 
     // LUGEMISED
@@ -66,14 +70,6 @@ public class Suhtlus {
         return (info[1] == valge);
     }
 
-    public static int[] loeKaik(DataInputStream in, DataOutputStream out) throws IOException {
-        int[] sisse = loeKoik(in, out);
-        if (sisse[0] == manguLopp) {
-            return new int[]{manguLopp, sisse[1]};
-        }
-        return kustutaKood(sisse);
-    }
-
     public static Set<Nupp> loeLaud(DataInputStream in, DataOutputStream out) throws IOException {
         Set<Nupp> tagastus = new HashSet<>();
         int[] info = loeKoik(in, out);
@@ -85,40 +81,34 @@ public class Suhtlus {
                 }
                 return tagastus;
             case manguLopp:
+                LauaVaade.mangLabi(info[1]);
                 return null;
             default:
                 throw new RuntimeException("Oodatud \"laua olek\", kuid saadud: " + info[0]);
         }
     }
 
-    // SAATMISED
-    public static void saadaTegevus(DataInputStream in, DataOutputStream out, int kood, int[] sisu) throws IOException {
-        System.out.println("Saadan: " + "pikkus - " + (1+sisu.length) + ", kood - " + kood + ", sisu - " + Arrays.toString(sisu));
-        out.writeInt(1 + sisu.length);
-        out.writeInt(kood);
-        for (int i : sisu) {
-            out.writeInt(i);
+    public static int[][] loeVoimalikud(DataInputStream in, DataOutputStream out) throws IOException {
+        int len = (in.readInt()-1)/2;
+        int kood = in.readInt();
+        if (kood != voimalikudKaigud) throw new RuntimeException("Vale kood, ootasin voimalikud kaigud, aga sain: " + kood);
+        int[][] tagastus = new int[len][];
+        for (int i = 0; i < len; i++) {
+            tagastus[i] = new int[]{in.readInt(), in.readInt()};
         }
-        if (in.readInt() != 1) throw new RuntimeException("Ei saanud serverilt OK koodi");
-    }
-
-    public static int saadaKlikk(DataInputStream in, DataOutputStream out, int[] klikk) throws IOException {
-        System.out.println("Saadan: " + "pikkus - " + (1+klikk.length) + ", kood - " + klikkTehti + ", sisu - " + Arrays.toString(klikk));
-        out.writeInt(1 + klikk.length);
-        out.writeInt(klikkTehti);
-        for (int i : klikk) {
-            out.writeInt(i);
-        }
-        int serveriTagastus = in.readInt();
-        if (in.readInt() == 0) throw new RuntimeException("Sain serverilt error koodi");
-        return serveriTagastus;
-    }
-
-    public static int kusiManguTulemust(DataInputStream in, DataOutputStream out) throws IOException {
-        System.out.println("Saadan: pikkus - 1, kood - " + kuidasMangLoppes);
         out.writeInt(1);
-        out.writeInt(kuidasMangLoppes);
-        if (in.readInt() != 1) throw new RuntimeException("Server tagastas mängu lõpus liiga pika sõnumi");
+        System.out.println("sain pikkus "+len*2+1+", kood " + kood + ", sisu " + Arrays.deepToString(tagastus));
+        return tagastus;
+    }
+
+    // SAATMISED
+    public static int saadaKlikk(DataInputStream in, DataOutputStream out, int x, int y) throws IOException {
+        System.out.println("Saadan: " + "pikkus - " + 3 + ", kood - " + klikkTehti + ", sisu - " + x + ", " +y);
+        out.writeInt(3);
+        out.writeInt(klikkTehti);
+        out.writeInt(x);
+        out.writeInt(y);
+        in.readInt();
         return in.readInt();
     }
 

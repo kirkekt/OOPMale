@@ -20,4 +20,9 @@ public class Ratsu extends Malenupp {
     protected List<List<Asukoht>> kaiguDeltad() {
         return kaigud;
     }
+
+    @Override
+    public int getNupuKood() {
+        return super.onValge() ? Suhtlus.vRatsu : Suhtlus.mRatsu;
+    }
 }

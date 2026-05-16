@@ -292,13 +292,14 @@ public class Malelaud {
         return null;
     }
 
-    /**
-     * Liigutab nupu algruudult lõppruutu. Kui lõppruudul on nupp, siis kustutab ta ära. Ei tee ühtegi kontrolli.
-     * @param kaik
-     */
-    public void teeKaik(int[] kaik){
+    public void teeKaik(int[] kaik) {
         Asukoht algneAsukoht = new Asukoht(kaik[0], kaik[1]);
         Asukoht uusAsukoht = new Asukoht(kaik[2], kaik[3]);
+        teeKaik(algneAsukoht, uusAsukoht);
+    }
+
+
+    public void teeKaik(Asukoht algneAsukoht, Asukoht uusAsukoht) {
         Asukoht deltaKaik = uusAsukoht.lahuta(algneAsukoht);
         Malenupp liigutatavNupp = misNuppRuudul(algneAsukoht);
         Malenupp voetavNupp = misNuppRuudul(uusAsukoht);
@@ -483,7 +484,7 @@ public class Malelaud {
         List<Asukoht> voimalikudKaigud = new ArrayList<>();
         for (List<Asukoht> iSuund : malenupp.voimalikudKaigud()) {
             for (Asukoht iDelta : iSuund) {
-                if (kasLubatudKaik(malenupp.OnValge(), new int[]{
+                if (kasLubatudKaik(malenupp.onValge(), new int[]{
                         malenupp.getX(),
                         malenupp.getY(),
                         malenupp.getX() + iDelta.getX(),
@@ -509,5 +510,13 @@ public class Malelaud {
 
     public List<Malenupp> getKoikNupud() {
         return koikNupud;
+    }
+
+    public List<Malenupp> getValgedNupud() {
+        return valgedNupud;
+    }
+
+    public List<Malenupp> getMustadNupud() {
+        return mustadNupud;
     }
 }

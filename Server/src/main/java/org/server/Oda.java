@@ -23,4 +23,9 @@ public class Oda extends Malenupp {
     protected List<List<Asukoht>> kaiguDeltad() {
         return kaigud;
     }
+
+    @Override
+    public int getNupuKood() {
+        return super.onValge() ? Suhtlus.vOda : Suhtlus.mOda;
+    }
 }

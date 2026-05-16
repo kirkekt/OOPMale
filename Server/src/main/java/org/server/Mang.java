@@ -2,7 +2,11 @@ package org.server;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.IOException;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 public class Mang implements Runnable {
 
@@ -27,68 +31,89 @@ public class Mang implements Runnable {
              DataOutputStream valgeOut = new DataOutputStream(valgeSocket.getOutputStream())) {
 
             // Teavitab mõlemat mängijat
-            Suhtlus.init(valgeOut, valgeIn, mustOut, mustIn);
+            Suhtlus.init(valgeOut, valgeIn, mustOut, mustIn, malelaud);
 
             // Valmistab ette muutujad
             boolean valgeKord = true;
             DataInputStream kaiguTegijaIn;
             DataOutputStream kaiguTegijaOut;
-            DataInputStream vastaneIn;
-            DataOutputStream vastaneOut;
+
+            Suhtlus.saadaLaud(valgeIn, valgeOut, malelaud.getKoikNupud());
 
             // Algatab mängu loop-i
             while (true) {
                 if (valgeKord) {
                     kaiguTegijaIn = valgeIn;
                     kaiguTegijaOut = valgeOut;
-                    vastaneIn = mustIn;
-                    vastaneOut = mustOut;
                 }
                 else {
                     kaiguTegijaIn = mustIn;
                     kaiguTegijaOut = mustOut;
-                    vastaneIn = valgeIn;
-                    vastaneOut = valgeOut;
                 }
 
-                int[] kaik = Suhtlus.loeKaik(kaiguTegijaIn, kaiguTegijaOut, vastaneOut);
+                List<Asukoht> voimalikud = new ArrayList<>();
+                Asukoht liigutatav = null;
 
-                if (kaik[0] == Suhtlus.manguLopp) {
-                    Suhtlus.teavitaEtManguLopp(kaik[1], vastaneOut);
+                while (true) {
+                    Asukoht klikk = Suhtlus.loeKlikk(kaiguTegijaIn, kaiguTegijaOut);
+
+                    if (voimalikud.contains(klikk)) {
+                        if (liigutatav != null) {
+                            malelaud.teeKaik(liigutatav, klikk);
+                            if (malelaud.asendatavaEtturiAsukoht() != null) {
+                                malelaud.asendaEttur("Lipp");
+                            }
+                            malelaud.uuendaSeisuLoendur();
+                            kaiguTegijaOut.writeInt(Suhtlus.kaiguLopp);
+                            Suhtlus.saadaLaud(valgeIn, valgeOut, malelaud.getKoikNupud());
+                            Suhtlus.saadaLaud(mustIn, mustOut, malelaud.getKoikNupud());
+                            valgeKord = !valgeKord;
+                            break;
+                        }
+                    }
+
+                    List<Malenupp> nupud;
+                    if (valgeKord) {
+                        nupud = malelaud.getValgedNupud();
+                    }
+                    else {
+                        nupud = malelaud.getMustadNupud();
+                    }
+
+                    Optional<Malenupp> nupp = nupud.stream().filter(x -> x.getAsukoht().equals(klikk)).findAny();
+
+                    if (nupp.isPresent()) {
+                        liigutatav = nupp.get().getAsukoht();
+                        voimalikud = malelaud.nupuVoimalikudKaigud(nupp.get());
+                        if (voimalikud.isEmpty()) kaiguTegijaOut.writeInt(Suhtlus.voimalikudPuuduvad);
+                        else {
+                            kaiguTegijaOut.writeInt(Suhtlus.saadanVoimalikud);
+                            Suhtlus.saadaVoimalikud(kaiguTegijaIn, kaiguTegijaOut, voimalikud);
+                        }
+                    } else {
+                        kaiguTegijaOut.writeInt(Suhtlus.saadaUusKlikk);
+                    }
+                }
+
+                int kasManguLopp = malelaud.mangLabi(valgeKord);
+                if (kasManguLopp != 0) {
+                    switch (kasManguLopp) {
+                        case 1:
+                            System.out.println("Valge võitis");
+                            break;
+                        case -1:
+                            System.out.println("Must võitis");
+                            break;
+                        case 67:
+                            System.out.println("Haahaa viiki jäi");
+                    }
+                    Suhtlus.teavitaEtManguLopp(valgeOut, mustOut, kasManguLopp);
                     break;
                 }
-
-                if (malelaud.kasLubatudKaik(valgeKord, kaik)) {
-                    malelaud.teeKaik(kaik);
-                    if (malelaud.asendatavaEtturiAsukoht() != null){
-                        malelaud.asendaEttur("Lipp");
-                    }
-                    malelaud.uuendaSeisuLoendur();
-                    Suhtlus.saadaKaiguInfo(kaiguTegijaOut, vastaneOut, vastaneIn, kaik);
-                    valgeKord = !valgeKord;
-
-                    if(malelaud.mangLabi(valgeKord) != 0){
-                        switch (malelaud.mangLabi(valgeKord)){
-                            case 1:
-                                System.out.println("Valge võitis");
-                                break;
-                            case -1:
-                                System.out.println("Must võitis");
-                                break;
-                            case 67:
-                                System.out.println("Haahaa viiki jäi");
-                        }
-                        break;
-                    }
-                }
-                else {
-                    System.out.println("keelatud käik");
-                    kaiguTegijaOut.writeInt(Suhtlus.illegaalneKaik);
-                }
             }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 }
+

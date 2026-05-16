@@ -4,59 +4,73 @@ import javafx.application.Platform;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.IOException;
+import java.util.Set;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class GameLoop implements Runnable{
 
-    boolean onValge;
-    DataInputStream in;
-    DataOutputStream out;
-    LauaVaade lauaVaade;
-    BlockingQueue<int[]> kaigud;
+    private boolean onValge;
+    private DataInputStream in;
+    private DataOutputStream out;
+    private LauaVaade lauaVaade;
+    private BlockingQueue<int[]> klikid = new LinkedBlockingQueue<>();
 
-    /*public GameLoop(boolean onValge, DataInputStream in, DataOutputStream out, LauaVaade lauaVaade, BlockingQueue<int[]> kaigud) {
+    public GameLoop(boolean onValge, DataInputStream in, DataOutputStream out) {
         this.onValge = onValge;
         this.in = in;
         this.out = out;
+    }
+
+    public void setLauaVaade(LauaVaade lauaVaade) {
         this.lauaVaade = lauaVaade;
-        this.kaigud = kaigud;
-    }*/
+    }
+
+    public void lisaKlikk(int x, int y) {
+        klikid.add(new int[]{x, y});
+    }
 
     @Override
     public void run() {
-        /*try {
 
-            while (true) {
-                int[] kordinaadid = kaigud.take();
+        try {
+            boolean kaib = true;
+            while (kaib) {
+                Set<Nupp> laud = Suhtlus.loeLaud(in, out);
+                Platform.runLater(() -> lauaVaade.uuendaLaud(laud));
+                lauaVaade.setMinuKaik(true);
 
-                System.out.println("Proovin käiku: " + kordinaadid[0] + "," + kordinaadid[1] + " -> " + kordinaadid[2] + "," + kordinaadid[3]);
+                while (true) {
+                    int[] klikk = klikid.take();
+                    int serveriVastus = Suhtlus.saadaKlikk(in, out, klikk[0], klikk[1]);
+                    System.out.println(serveriVastus);
 
-                Suhtlus.saadaKaik(in, out, kordinaadid);
-                if (in.readInt() == Suhtlus.error) {
-                    //lauaVaade.klikidReset();
-                    continue;
-                } else {
-                    malelaud.teeKaik(kordinaadid, lauaVaade);
-                    Platform.runLater(lauaVaade::klikidReset);
-                }
-
-                int[] vastaseKaik = Suhtlus.loeKaik(in, out);
-                if (vastaseKaik[0] == Suhtlus.manguLopp) {
-                    System.out.print("mäng läbi - ");
-                    if (vastaseKaik[1] == Suhtlus.kaotus) {
-                        System.out.println("kaotasid");
-                    } else if (vastaseKaik[1] == Suhtlus.viik) {
-                        System.out.println("jäite viiki");
-                    } else if (vastaseKaik[1] == Suhtlus.võit) {
-                        System.out.println("võitsid");
+                    //kaik sai läbi, uuendab laua ja jääb vastase laua uuendust ootama
+                    if (serveriVastus == Suhtlus.kaiguLopp) {
+                        lauaVaade.setMinuKaik(false);
+                        klikid.clear();
+                        Set<Nupp> uuslaud = Suhtlus.loeLaud(in, out);
+                        if (uuslaud == null) {kaib = false; break;}
+                        Platform.runLater(() -> lauaVaade.uuendaLaud(uuslaud));
+                        break;
                     }
-                    break;
-                } else {
-                    malelaud.teeKaik(vastaseKaik, lauaVaade);
+
+                    //klikiti nupp, aga nupp ei saa kuhugi käia
+                    if (serveriVastus == Suhtlus.voimalikudPuuduvad) {
+                        Platform.runLater(() -> lauaVaade.uuendaVoimalikud(klikk[0], klikk[1], new int[0][]));
+                        continue;
+                    }
+
+                    //klikiti nupp, mis saab käia
+                    if (serveriVastus == Suhtlus.saadanVoimalikud) {
+                        int[][] voimalikud = Suhtlus.loeVoimalikud(in, out);
+                        Platform.runLater(() -> lauaVaade.uuendaVoimalikud(klikk[0], klikk[1], voimalikud));
+                    }
                 }
             }
-        } catch (Exception e) {
+        } catch (IOException | InterruptedException e) {
             throw new RuntimeException(e);
-        }*/
+        }
     }
 }

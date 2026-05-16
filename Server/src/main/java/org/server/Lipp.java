@@ -29,5 +29,10 @@ public class Lipp extends Malenupp {
     protected List<List<Asukoht>> kaiguDeltad() {
         return kaigud;
     }
+
+    @Override
+    public int getNupuKood() {
+        return super.onValge() ? Suhtlus.vLipp : Suhtlus.mLipp;
+    }
 }
 

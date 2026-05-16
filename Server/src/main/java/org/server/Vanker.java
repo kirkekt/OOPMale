@@ -23,4 +23,9 @@ public class Vanker extends Malenupp {
     protected List<List<Asukoht>> kaiguDeltad() {
         return kaigud;
     }
+
+    @Override
+    public int getNupuKood() {
+        return super.onValge() ? Suhtlus.vVanker : Suhtlus.mVanker;
+    }
 }

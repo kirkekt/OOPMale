@@ -80,10 +80,12 @@ public class HelloApplication extends Application {
 
                 // Muutujate ette valmistamine
                 final boolean onValge = Suhtlus.kasValge(in, out);
-                LauaVaade lauaVaade = new LauaVaade(onValge);
+                GameLoop gl = new GameLoop(onValge, in, out);
+                LauaVaade lauaVaade = new LauaVaade(onValge, gl);
+                gl.setLauaVaade(lauaVaade);
 
                 // Malelaua ette valmistamine
-                lauaVaade.uuendaLaud();
+                lauaVaade.uuendaLaud(Suhtlus.loeLaud(in, out));
                 Scene scene = new Scene(lauaVaade.getVaade(), 700, 700);
 
                 Platform.runLater(() -> {
@@ -96,9 +98,9 @@ public class HelloApplication extends Application {
                     });
                 });
 
-                while (true) {
-                    lauaVaade.uuendaLaud();
-                }
+                Thread thread = new Thread(gl);
+                thread.setDaemon(true);
+                thread.start();
 
             } catch (Exception ex) {
                 Platform.runLater(() -> veateade.setText("Viga: " + ex.getMessage()));

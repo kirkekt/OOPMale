@@ -60,25 +60,15 @@ public abstract class Malenupp {
     public void setOnLiikunud(boolean onLiikunud){
         this.onLiikunud = onLiikunud;
     }
+
     public boolean onValge() {
         return onValge;
-    }
-
-    public boolean kasAsubSiin(Asukoht asukoht){
-        return this.asukoht.equals(asukoht);
-    }
-
-    public boolean kasAsubSiin(int x, int y) {
-        return asukoht.equals(new Asukoht(x,y));
     }
 
     public Asukoht getAsukoht() {
         return asukoht;
     }
 
-    public boolean OnValge() {
-        return onValge;
-    }
 
     public int getX() { return asukoht.getX(); }
     public int getY() { return asukoht.getY(); }
@@ -99,4 +89,6 @@ public abstract class Malenupp {
                 ", onValge=" + onValge +
                 '}';
     }
+
+    public abstract int getNupuKood();
 }

@@ -10,32 +10,28 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Set;
-import java.util.concurrent.BlockingQueue;
 
 public class LauaVaade {
     private GridPane ruudustik = new GridPane();
     private boolean onValge;
     private boolean minuKaik;
-    private DataInputStream in;
-    private DataOutputStream out;
+    private GameLoop gl;
 
-    public LauaVaade(boolean onValge) {
+    public LauaVaade(boolean onValge, GameLoop gl) {
         this.onValge = onValge;
         this.minuKaik = onValge;
+        this.gl = gl;
+    }
+
+    public void setMinuKaik(boolean minuKaik) {
+        this.minuKaik = minuKaik;
     }
 
     private void ruutKlikiti(int x, int y) {
         if (minuKaik) {
-            try {
-                int serveriVastus = Suhtlus.saadaKlikk(in, out, new int[]{x, y});
-                if (serveriVastus == Suhtlus.kaiguLopp) minuKaik = false;
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+            gl.lisaKlikk(x, y);
         }
     }
 
@@ -102,9 +98,7 @@ public class LauaVaade {
         return vaade;
     }
 
-    public void uuendaLaud() throws IOException {
-        Set<Nupp> lauaOlek = Suhtlus.loeLaud(in, out);
-        if (lauaOlek == null) mangLabi();
+    public void uuendaLaud(Set<Nupp> lauaOlek) {
         ruudustik.getChildren().clear();
         ehitaLaud();
 
@@ -113,13 +107,13 @@ public class LauaVaade {
         lauaOlek.forEach(
                 malend -> ruudustik.add(getPilt(malend), malend.getX() + 1, onValge ? 8 - malend.getY() : malend.getY() + 1)
         );
-        minuKaik = true;
     }
 
-    public void mangLabi() throws IOException {
-        int tulemus = Suhtlus.kusiManguTulemust(in, out);
-        in.close();
-        out.close();
+    public void uuendaVoimalikud(int nupuX, int nupuY, int[][] voimalikud) {
+        return;
+    }
+
+    public static void mangLabi(int tulemus) throws IOException { // saad võtta koodid Suhtlus.voit, Suhtlus.viik ja Suhtlus.kaotus
         System.out.println(tulemus); // asenda mingi mõistliku mängulõpu asjaga - näita mäng läbi teksti vms
     }
 }

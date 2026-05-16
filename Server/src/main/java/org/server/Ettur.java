@@ -18,6 +18,11 @@ public class Ettur extends Malenupp {
     }
 
     @Override
+    public int getNupuKood() {
+        return super.onValge() ? Suhtlus.vEttur : Suhtlus.mEttur;
+    }
+
+    @Override
     protected List<List<Asukoht>> kaiguDeltad() {
         if (!super.isOnLiikunud()){
             return esimeneKaik;
