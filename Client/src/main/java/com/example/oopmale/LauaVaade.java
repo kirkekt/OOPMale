@@ -39,19 +39,17 @@ public class LauaVaade {
         for (int rida = 0; rida < 9; rida++) {
             for (int veerg = 0; veerg < 9; veerg++) {
 
-                int reaNumber, veeruNumber;
+                int reaNumber;
                 if (onValge) {
                     reaNumber = 9 - rida;
-                    veeruNumber = veerg;
                 } else {
                     reaNumber = rida;
-                    veeruNumber = 9-veerg;
                 }
 
                 if (veerg == 0 && rida == 0) {
                     // top-left empty corner
                 } else if (rida == 0) {
-                    Label täht = new Label(Character.toString((char) (onValge? 'A' + veerg - 1 : 'A' - veerg + 8)));
+                    Label täht = new Label(Character.toString((char) ('A' + veerg - 1)));
                     täht.setMaxWidth(Double.MAX_VALUE);
                     täht.setAlignment(Pos.CENTER);
                     ruudustik.add(täht, veerg, rida);
@@ -64,13 +62,21 @@ public class LauaVaade {
                 } else {
                     Rectangle ruut = new Rectangle(80, 80);
 
-                    if ((rida + veerg) % 2 == 0) {
-                        ruut.setFill(Color.WHITE);
+                    if (onValge) {
+                        if ((rida + veerg) % 2 == 0) {
+                            ruut.setFill(Color.WHITE);
+                        } else {
+                            ruut.setFill(Color.GREEN);
+                        }
                     } else {
-                        ruut.setFill(Color.GREEN);
+                        if ((rida + veerg) % 2 != 0) {
+                            ruut.setFill(Color.WHITE);
+                        } else {
+                            ruut.setFill(Color.GREEN);
+                        }
                     }
 
-                    int x = veeruNumber - 1;
+                    int x = veerg - 1;
                     int y = reaNumber - 1;
 
 

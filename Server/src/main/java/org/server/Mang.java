@@ -42,6 +42,7 @@ public class Mang implements Runnable {
 
             // Algatab mängu loop-i
             while (true) {
+                System.out.println("uus ring");
                 if (valgeKord) {
                     kaiguTegijaIn = valgeIn;
                     kaiguTegijaOut = valgeOut;
@@ -60,13 +61,18 @@ public class Mang implements Runnable {
                     if (voimalikud.contains(klikk)) {
                         if (liigutatav != null) {
                             malelaud.teeKaik(liigutatav, klikk);
+                            System.out.println("liigutan: " + liigutatav + " -> " + klikk);
                             if (malelaud.asendatavaEtturiAsukoht() != null) {
                                 malelaud.asendaEttur("Lipp");
                             }
                             malelaud.uuendaSeisuLoendur();
                             kaiguTegijaOut.writeInt(Suhtlus.kaiguLopp);
-                            Suhtlus.saadaLaud(valgeIn, valgeOut, malelaud.getKoikNupud());
-                            Suhtlus.saadaLaud(mustIn, mustOut, malelaud.getKoikNupud());
+                            System.out.println(1);
+                            List<Malenupp> koikNupud = malelaud.getKoikNupud();
+                            koikNupud.removeIf(x -> !x.isElus());
+                            Suhtlus.saadaLaud(valgeIn, valgeOut, koikNupud);
+                            Suhtlus.saadaLaud(mustIn, mustOut, koikNupud);
+                            System.out.println(2);
                             valgeKord = !valgeKord;
                             break;
                         }

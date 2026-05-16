@@ -97,7 +97,7 @@ public class Suhtlus {
             tagastus[i] = new int[]{in.readInt(), in.readInt()};
         }
         out.writeInt(1);
-        System.out.println("sain pikkus "+len*2+1+", kood " + kood + ", sisu " + Arrays.deepToString(tagastus));
+        System.out.println("sain pikkus "+(len*2+1)+", kood " + kood + ", sisu " + Arrays.deepToString(tagastus));
         return tagastus;
     }
 

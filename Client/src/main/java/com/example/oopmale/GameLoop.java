@@ -44,7 +44,7 @@ public class GameLoop implements Runnable{
                 while (true) {
                     int[] klikk = klikid.take();
                     int serveriVastus = Suhtlus.saadaKlikk(in, out, klikk[0], klikk[1]);
-                    System.out.println(serveriVastus);
+                    System.out.println("Server vastas klikile koodiga: "+serveriVastus);
 
                     //kaik sai läbi, uuendab laua ja jääb vastase laua uuendust ootama
                     if (serveriVastus == Suhtlus.kaiguLopp) {
