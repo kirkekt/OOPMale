@@ -66,20 +66,55 @@ public class Malelaud {
         // kontrollime ega tuld ei teki peale käiku:
         // NB: vangerdamist siin eraldi käsitlema ei pea, sest kasVangerdusVoimalik juba kontrollib, et kuningas ei liigu läbi tule jne.
         // kui vangerdada, siis vanker on juba laua servas, seega tema nö tagant ei saa uut tuld välja tulla, seega siin liigutamata jääv vanker ei saa tuld varjata.
+        return !kutsuFunktsioonPealeSimuleerimist(vanaAsukoht, uusAsukoht, a -> onTuli(valgeKaik));
+
+    }
+
+    @FunctionalInterface
+    interface BoardFunction<T> {
+        T apply(Malelaud malelaud);
+    }
+    public <T> T kutsuFunktsioonPealeSimuleerimist(Asukoht vanaAsukoht, Asukoht uusAsukoht, BoardFunction<T> f){
+        Malenupp liigutatavNupp = misNuppRuudul(vanaAsukoht);
+        Malenupp araVoetavNupp = misNuppRuudul(uusAsukoht);
         Malenupp enPassantMalu = null;
         if (enPassantKatse(liigutatavNupp, uusAsukoht)){
             enPassantMalu = misNuppRuudul(enPassantVoimalus);
             enPassantMalu.setElus(false);
             tabelisEsitus[enPassantMalu.getX()][enPassantMalu.getY()] = null;
         }
-        Malenupp araVoetavNupp = misNuppRuudul(uusAsukoht);
         tabelisEsitus[uusAsukoht.getX()][uusAsukoht.getY()] = tabelisEsitus[vanaAsukoht.getX()][vanaAsukoht.getY()];
         tabelisEsitus[vanaAsukoht.getX()][vanaAsukoht.getY()] = null;
         boolean oliLiikunud = liigutatavNupp.isOnLiikunud();
         liigutatavNupp.liiguta(uusAsukoht.lahuta(vanaAsukoht));
         if (araVoetavNupp!=null) araVoetavNupp.setElus(false);
-        boolean vastus = onTuli(valgeKaik);
-        if (araVoetavNupp!=null) araVoetavNupp.setElus(true);
+        Malenupp vanker = null;
+        if (kasProovitakseVangerdada(liigutatavNupp, uusAsukoht)){
+            vanker = leiaVangerduseVanker((Kuningas) liigutatavNupp, uusAsukoht);
+            tabelisEsitus[vanker.getX()][vanker.getY()] = null;
+            if (vanker.getAsukoht().getX() == 7) {
+                // lühike vangerdus
+                vanker.liiguta(-2, 0);
+            } else {
+                // pikk vangerdus
+                vanker.liiguta(3, 0);
+            }
+            tabelisEsitus[vanker.getX()][vanker.getY()] = vanker;
+        }
+        T vastus = f.apply(this);
+        if (kasProovitakseVangerdada(liigutatavNupp, uusAsukoht)){
+            tabelisEsitus[vanker.getX()][vanker.getY()] = null;
+            if (vanker.getAsukoht().getX() == 5) {
+                // lühike vangerdus
+                vanker.liiguta(2, 0);
+            } else {
+                // pikk vangerdus
+                vanker.liiguta(-3, 0);
+            }
+            tabelisEsitus[vanker.getX()][vanker.getY()] = vanker;
+            vanker.setOnLiikunud(false);
+        }
+            if (araVoetavNupp!=null) araVoetavNupp.setElus(true);
         liigutatavNupp.liiguta(vanaAsukoht.lahuta(uusAsukoht));
         liigutatavNupp.setOnLiikunud(oliLiikunud);
         tabelisEsitus[vanaAsukoht.getX()][vanaAsukoht.getY()] = tabelisEsitus[uusAsukoht.getX()][uusAsukoht.getY()];
@@ -88,11 +123,9 @@ public class Malelaud {
             enPassantMalu.setElus(true);
             tabelisEsitus[enPassantMalu.getX()][enPassantMalu.getY()] = enPassantMalu;
         }
-        return !vastus;
-
+        return vastus;
 
     }
-
     /**
      * Vaatab, kas nuppu on võimalik liigutada sihtruudule. Ei kontrolli,
      * kas liigutuse tulemus paneb kuninga tule alla
