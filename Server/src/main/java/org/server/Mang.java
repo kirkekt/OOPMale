@@ -69,12 +69,22 @@ public class Mang implements Runnable {
                             }
                             malelaud.uuendaSeisuLoendur();
                             kaiguTegijaOut.writeInt(Suhtlus.kaiguLopp);
-                            System.out.println(1);
+
                             List<Malenupp> koikNupud = malelaud.getKoikNupud();
                             koikNupud.removeIf(x -> !x.isElus());
                             Suhtlus.saadaLaud(valgeIn, valgeOut, koikNupud);
-                            Suhtlus.saadaLaud(mustIn, mustOut, koikNupud);
-                            System.out.println(2);
+                            if (botiVastu) {
+                                mustOut.writeInt(5);
+                                mustOut.writeInt(Suhtlus.kaiguKood);
+                                mustOut.writeInt(liigutatav.getX());
+                                mustOut.writeInt(liigutatav.getY());
+                                mustOut.writeInt(klikk.getX());
+                                mustOut.writeInt(klikk.getY());
+                                mustIn.readInt();
+                            } else{
+                                Suhtlus.saadaLaud(mustIn, mustOut, koikNupud);
+                            }
+
                             valgeKord = !valgeKord;
                             break;
                         }
