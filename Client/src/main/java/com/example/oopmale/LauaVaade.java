@@ -121,5 +121,6 @@ public class LauaVaade {
 
     public static void mangLabi(int tulemus) throws IOException { // saad võtta koodid Suhtlus.voit, Suhtlus.viik ja Suhtlus.kaotus
         System.out.println(tulemus); // asenda mingi mõistliku mängulõpu asjaga - näita mäng läbi teksti vms
+        UhendaServeriga.destroy();
     }
 }

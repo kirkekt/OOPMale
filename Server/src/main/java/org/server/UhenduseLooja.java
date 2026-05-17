@@ -2,6 +2,7 @@ package org.server;
 
 import javax.net.ssl.SSLSocket;
 import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.net.Socket;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +26,7 @@ public class UhenduseLooja implements Runnable {
     public void run() {
         try {
             DataInputStream in = new DataInputStream(uhenduja.getInputStream());
+            DataOutputStream out = new DataOutputStream(uhenduja.getOutputStream());
             System.out.println("siin");
             boolean bot = in.readBoolean();
             System.out.println(bot);
@@ -34,21 +36,36 @@ public class UhenduseLooja implements Runnable {
             } else {
                 String ruumiKood = in.readUTF();
                 System.out.println(ruumiKood);
-                List<Socket> ruum = ruumid.computeIfAbsent(ruumiKood, _ -> new CopyOnWriteArrayList<>());
-                CountDownLatch latch = latchid.computeIfAbsent(ruumiKood, k -> new CountDownLatch(2));
+                while (true) {
+                    List<Socket> ruum = ruumid.computeIfAbsent(ruumiKood, _ -> new CopyOnWriteArrayList<>());
+                    CountDownLatch latch = latchid.computeIfAbsent(ruumiKood, k -> new CountDownLatch(2));
 
-                ruum.add(uhenduja);
-                latch.countDown();
-                try {
-                    latch.await();
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
+                    ruum.add(uhenduja);
+                    latch.countDown();
+                    try {
+                        latch.await();
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+
+                    ruum = ruumid.remove(ruumiKood);
+                    latchid.remove(ruumiKood);
+
+
+                    if (ruum != null) {
+                        try {
+                            new DataOutputStream(ruum.get(0).getOutputStream()).writeInt(1);
+                            new DataInputStream(ruum.get(0).getInputStream()).readInt();
+                            new DataOutputStream(ruum.get(1).getOutputStream()).writeInt(1);
+                            new DataInputStream(ruum.get(1).getInputStream()).readInt();
+                            new Thread(new Mang(ruum.get(0), ruum.get(1), false)).start();
+                            break;
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+
                 }
-
-                ruum = ruumid.remove(ruumiKood);
-                latchid.remove(ruumiKood);
-
-                if (ruum != null) new Thread(new Mang(ruum.get(0), ruum.get(1), false)).start();
             }
         } catch (Exception e) {
             new RuntimeException(e);
