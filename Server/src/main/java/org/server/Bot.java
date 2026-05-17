@@ -78,7 +78,7 @@ public abstract class Bot implements Runnable{
         in.readInt();                    // consume the loeKoik confirmation (always 1)
         int response = in.readInt();     // now read the actual kaikOk / illegaalneKaik
 
-        if (response == Suhtlus.kaikOk) {
+        if (response == Suhtlus.koikOk) {
             teeKaik(kaik);
             return true;
         }
