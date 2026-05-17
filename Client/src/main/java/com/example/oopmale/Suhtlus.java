@@ -48,6 +48,8 @@ public class Suhtlus {
     public static final int viik = 67;
     public static final int voit = 1;
 
+    public static int tulemus = -1;
+
 
     // LUGEMISED
     private static int[] loeKoik(DataInputStream in, DataOutputStream out) throws IOException {
@@ -81,7 +83,7 @@ public class Suhtlus {
                 }
                 return tagastus;
             case manguLopp:
-                LauaVaade.mangLabi(info[1]);
+                tulemus = info[1];
                 return null;
             default:
                 throw new RuntimeException("Oodatud \"laua olek\", kuid saadud: " + info[0]);

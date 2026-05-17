@@ -1,14 +1,20 @@
 package com.example.oopmale;
 
+import javafx.application.Platform;
 import javafx.geometry.HPos;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.geometry.VPos;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.util.Set;
@@ -18,11 +24,15 @@ public class LauaVaade {
     private boolean onValge;
     private boolean minuKaik;
     private GameLoop gl;
+    private Stage stage;
+    private Scene algStseen;
 
-    public LauaVaade(boolean onValge, GameLoop gl) {
+    public LauaVaade(boolean onValge, GameLoop gl, Stage stage, Scene algStseen) {
         this.onValge = onValge;
         this.minuKaik = onValge;
         this.gl = gl;
+        this.stage = stage;
+        this.algStseen = algStseen;
     }
 
     public void setMinuKaik(boolean minuKaik) {
@@ -119,7 +129,24 @@ public class LauaVaade {
         return;
     }
 
-    public static void mangLabi(int tulemus) throws IOException { // saad võtta koodid Suhtlus.voit, Suhtlus.viik ja Suhtlus.kaotus
-        System.out.println(tulemus); // asenda mingi mõistliku mängulõpu asjaga - näita mäng läbi teksti vms
+    public void mangLabi(int tulemus) throws IOException { // saad võtta koodid Suhtlus.voit, Suhtlus.viik ja Suhtlus.kaotus
+        String tulemusTekst = switch (tulemus) {
+            case Suhtlus.voit   -> "Võitsid!";
+            case Suhtlus.kaotus -> "Kaotasid!";
+            default             -> "Viik!";
+        };
+
+        Platform.runLater(() -> {
+            Button tagasiNupp = new Button("Tagasi algekraanile");
+            tagasiNupp.setDefaultButton(true);
+            tagasiNupp.setOnAction(e -> stage.setScene(algStseen));
+
+            VBox lõppLayout = new VBox(15, new Label(tulemusTekst), tagasiNupp);
+            lõppLayout.setAlignment(Pos.CENTER);
+            lõppLayout.setPadding(new Insets(40));
+
+            stage.setScene(new Scene(lõppLayout, 300, 200));
+            stage.setTitle("Mäng läbi");
+        });
     }
 }

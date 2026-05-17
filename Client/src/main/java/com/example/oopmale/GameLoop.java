@@ -38,6 +38,9 @@ public class GameLoop implements Runnable{
             boolean kaib = true;
             while (kaib) {
                 Set<Nupp> laud = Suhtlus.loeLaud(in, out);
+                if (laud == null) {
+                    break;
+                }
                 Platform.runLater(() -> lauaVaade.uuendaLaud(laud));
                 lauaVaade.setMinuKaik(true);
 
@@ -69,6 +72,7 @@ public class GameLoop implements Runnable{
                     }
                 }
             }
+            lauaVaade.mangLabi(Suhtlus.tulemus);
         } catch (IOException | InterruptedException e) {
             throw new RuntimeException(e);
         }

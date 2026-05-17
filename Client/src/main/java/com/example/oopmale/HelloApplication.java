@@ -69,7 +69,8 @@ public class HelloApplication extends Application {
 
         VBox layout = new VBox(10, new Label("IP:"), ipVäli, new Label("port:"),portVäli, bott, inimene, ruumikoodLabel, ruumikoodiVäli, veateade, ühendaNupp);
         layout.setPadding(new Insets(30));
-        stage.setScene(new Scene(layout, 400, 350));
+        Scene algStseen = new Scene(layout, 400, 350);
+        stage.setScene(algStseen);
         stage.setTitle("Ühenda serveriga");
         stage.show();
 
@@ -92,7 +93,7 @@ public class HelloApplication extends Application {
                 // Muutujate ette valmistamine
                 final boolean onValge = Suhtlus.kasValge(in, out);
                 GameLoop gl = new GameLoop(onValge, in, out);
-                LauaVaade lauaVaade = new LauaVaade(onValge, gl);
+                LauaVaade lauaVaade = new LauaVaade(onValge, gl, stage, algStseen);
                 gl.setLauaVaade(lauaVaade);
 
                 // Malelaua ette valmistamine
