@@ -16,12 +16,12 @@ public class UhendaServeriga implements Runnable {
 
     private static boolean elus = false;
 
-    public static synchronized UhendaServeriga create(Label veateade, Stage stage, SSLContext ctx, String ip, int port, String ruumikood, boolean botiVastu) {
+    public static synchronized UhendaServeriga create(Label veateade, Stage stage, SSLContext ctx, String ip, int port, String ruumikood, boolean botiVastu, Scene algstseen) {
         if (elus) {
             return null;
         }
         elus = true;
-        return new UhendaServeriga(veateade, stage, ctx, ip, port, ruumikood, botiVastu);
+        return new UhendaServeriga(veateade, stage, ctx, ip, port, ruumikood, botiVastu, algstseen);
     }
 
     public static synchronized void destroy() {
@@ -35,8 +35,9 @@ public class UhendaServeriga implements Runnable {
     private int port;
     private String ruumikood;
     private boolean botiVastu;
+    private Scene algstseen;
 
-    private UhendaServeriga(Label veateade, Stage stage, SSLContext ctx, String ip, int port, String ruumikood, boolean botiVastu) {
+    private UhendaServeriga(Label veateade, Stage stage, SSLContext ctx, String ip, int port, String ruumikood, boolean botiVastu, Scene algstseen) {
         this.veateade = veateade;
         this.stage = stage;
         this.ctx = ctx;
@@ -44,6 +45,7 @@ public class UhendaServeriga implements Runnable {
         this.port = port;
         this.ruumikood = ruumikood;
         this.botiVastu = botiVastu;
+        this.algstseen = algstseen;
     }
 
     @Override
@@ -78,7 +80,7 @@ public class UhendaServeriga implements Runnable {
             // Muutujate ette valmistamine
             final boolean onValge = Suhtlus.kasValge(in, out);
             GameLoop gl = new GameLoop(onValge, in, out);
-            LauaVaade lauaVaade = new LauaVaade(onValge, gl);
+            LauaVaade lauaVaade = new LauaVaade(onValge, gl, stage, algstseen);
             gl.setLauaVaade(lauaVaade);
 
             // Malelaua ette valmistamine

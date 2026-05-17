@@ -79,7 +79,7 @@ public class HelloApplication extends Application {
             String ruumiKood = ruumikoodiVäli.getText().trim();
             int port = Integer.parseInt(portVäli.getText().trim());
             String ip = ipVäli.getText().trim();
-            new Thread(UhendaServeriga.create(veateade, stage, ctx, ip, port, ruumiKood, botiVastu)).start();
+            new Thread(UhendaServeriga.create(veateade, stage, ctx, ip, port, ruumiKood, botiVastu, algStseen)).start();
         });
     }
 }
