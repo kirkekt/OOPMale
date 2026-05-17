@@ -39,13 +39,11 @@ public class LauaVaade {
         for (int rida = 0; rida < 9; rida++) {
             for (int veerg = 0; veerg < 9; veerg++) {
 
-                int reaNumber, veeruNumber;
+                int reaNumber;
                 if (onValge) {
                     reaNumber = 9 - rida;
-                    veeruNumber = veerg;
                 } else {
                     reaNumber = rida;
-                    veeruNumber = 9-veerg;
                 }
 
                 if (veerg == 0 && rida == 0) {
@@ -70,7 +68,7 @@ public class LauaVaade {
                         ruut.setFill(Color.GREEN);
                     }
 
-                    int x = veeruNumber - 1;
+                    int x = veerg - 1;
                     int y = reaNumber - 1;
 
 
