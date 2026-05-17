@@ -67,56 +67,19 @@ public class HelloApplication extends Application {
             ruumikoodiVäli.setDisable(!onInimene);
         });
 
-        VBox layout = new VBox(10, new Label("IP:"), ipVäli, new Label("port:"),portVäli, bott, inimene, ruumikoodLabel, ruumikoodiVäli, veateade, ühendaNupp);
+        VBox layout = new VBox(10, new Label("IP:"), ipVäli, new Label("port:"), portVäli, bott, inimene, ruumikoodLabel, ruumikoodiVäli, veateade, ühendaNupp);
         layout.setPadding(new Insets(30));
         Scene algStseen = new Scene(layout, 400, 350);
         stage.setScene(algStseen);
         stage.setTitle("Ühenda serveriga");
         stage.show();
 
-        ühendaNupp.setOnAction(e -> new Thread(() -> {
-            try {
-                Platform.runLater(() -> veateade.setText("Ootan ühendust."));
-                SSLSocket server = (SSLSocket) ctx.getSocketFactory().createSocket(ipVäli.getText().trim(), Integer.parseInt(portVäli.getText().trim()));
-                server.startHandshake();
-                DataOutputStream out = new DataOutputStream(server.getOutputStream());
-                DataInputStream in = new DataInputStream(server.getInputStream());
-
-                boolean botiVastu = bott.isSelected();
-                out.writeBoolean(botiVastu);
-                System.out.println(botiVastu);
-                if (!botiVastu) {
-                    out.writeUTF(ruumikoodiVäli.getText());
-                    System.out.println(ruumikoodiVäli.getText());
-                }
-
-                // Muutujate ette valmistamine
-                final boolean onValge = Suhtlus.kasValge(in, out);
-                GameLoop gl = new GameLoop(onValge, in, out);
-                LauaVaade lauaVaade = new LauaVaade(onValge, gl, stage, algStseen);
-                gl.setLauaVaade(lauaVaade);
-
-                // Malelaua ette valmistamine
-                lauaVaade.uuendaLaud(Suhtlus.loeLaud(in, out));
-                Scene scene = new Scene(lauaVaade.getVaade(), 700, 700);
-
-                Platform.runLater(() -> {
-                    if (onValge) stage.setTitle("Male, Valge");
-                    else stage.setTitle("Male, Must");
-                    stage.setScene(scene);
-
-                    stage.setOnCloseRequest(ev -> {
-                        try { server.close(); } catch (Exception e1) { throw new RuntimeException(e1); }
-                    });
-                });
-
-                Thread thread = new Thread(gl);
-                thread.setDaemon(true);
-                thread.start();
-
-            } catch (Exception ex) {
-                Platform.runLater(() -> veateade.setText("Viga: " + ex.getMessage()));
-            }
-        }).start());
+        ühendaNupp.setOnAction(_ -> {
+            boolean botiVastu = bott.isSelected();
+            String ruumiKood = ruumikoodiVäli.getText().trim();
+            int port = Integer.parseInt(portVäli.getText().trim());
+            String ip = ipVäli.getText().trim();
+            new Thread(UhendaServeriga.create(veateade, stage, ctx, ip, port, ruumiKood, botiVastu)).start();
+        });
     }
 }

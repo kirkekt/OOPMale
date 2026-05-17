@@ -144,6 +144,7 @@ public class LauaVaade {
             VBox lõppLayout = new VBox(15, new Label(tulemusTekst), tagasiNupp);
             lõppLayout.setAlignment(Pos.CENTER);
             lõppLayout.setPadding(new Insets(40));
+            UhendaServeriga.destroy();
 
             stage.setScene(new Scene(lõppLayout, 300, 200));
             stage.setTitle("Mäng läbi");

@@ -17,6 +17,7 @@ public class Suhtlus {
     public static final int klikkTehti = 124;
     public static final int lauaOlek = 123;
     public static final int voimalikudKaigud = 122;
+    public static final int vangerdus = 121;
     // vastused
     public static final int error = 0;
     public static final int koikOk = 1;
