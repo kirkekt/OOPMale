@@ -319,7 +319,7 @@ public class Malelaud {
         return false;
     }
 
-    private Malenupp misNuppRuudul(Asukoht asukoht) {
+    public Malenupp misNuppRuudul(Asukoht asukoht) {
         if (0 <= asukoht.getX() && asukoht.getX() < 8 && 0 <= asukoht.getY() && asukoht.getY()<8)
             return tabelisEsitus[asukoht.getX()][asukoht.getY()];
         return null;
@@ -428,7 +428,7 @@ public class Malelaud {
                                     iMalenupp.getAsukoht().getY() + iKaik.getY()
                             }
                     )){
-                        System.out.println("Kaik mida teha saab on: " + iMalenupp.getAsukoht() + iMalenupp.getAsukoht().liida(iKaik));
+                        //System.out.println("Kaik mida teha saab on: " + iMalenupp.getAsukoht() + iMalenupp.getAsukoht().liida(iKaik));
                         return 0; // mängija saab mingi käigu teha, mäng ei ole läbi
                     }
                 }

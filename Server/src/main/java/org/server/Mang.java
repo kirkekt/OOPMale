@@ -62,8 +62,8 @@ public class Mang implements Runnable {
 
                     if (voimalikud.contains(klikk)) {
                         if (liigutatav != null) {
-                            malelaud.teeKaik(liigutatav, klikk);
                             System.out.println("liigutan: " + liigutatav + " -> " + klikk);
+                            malelaud.teeKaik(liigutatav, klikk);
                             if (malelaud.asendatavaEtturiAsukoht() != null) {
                                 malelaud.asendaEttur("Lipp");
                             }
@@ -74,6 +74,8 @@ public class Mang implements Runnable {
                             koikNupud.removeIf(x -> !x.isElus());
                             Suhtlus.saadaLaud(valgeIn, valgeOut, koikNupud);
                             if (botiVastu) {
+                                System.out.println(liigutatav);
+                                System.out.println(klikk);
                                 mustOut.writeInt(5);
                                 mustOut.writeInt(Suhtlus.kaiguKood);
                                 mustOut.writeInt(liigutatav.getX());
@@ -98,11 +100,10 @@ public class Mang implements Runnable {
                         nupud = malelaud.getMustadNupud();
                     }
 
-                    Optional<Malenupp> nupp = nupud.stream().filter(x -> x.getAsukoht().equals(klikk)).findAny();
-
-                    if (nupp.isPresent()) {
-                        liigutatav = nupp.get().getAsukoht();
-                        voimalikud = malelaud.nupuVoimalikudKaigud(nupp.get());
+                    Malenupp nupp = malelaud.misNuppRuudul(klikk);
+                    if (nupp!=null) {
+                        liigutatav = klikk;
+                        voimalikud = malelaud.nupuVoimalikudKaigud(nupp);
                         if (voimalikud.isEmpty()) kaiguTegijaOut.writeInt(Suhtlus.voimalikudPuuduvad);
                         else {
                             kaiguTegijaOut.writeInt(Suhtlus.saadanVoimalikud);

@@ -3,38 +3,29 @@ package org.server;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.net.Socket;
-import java.util.Arrays;
 
-public abstract class Bot implements Runnable{
+public abstract class Bot implements Runnable {
     public final Malelaud malelaud;
-    public final Boolean onValge;
+    public boolean onValge;
     private DataOutputStream out;
     private DataInputStream in;
 
-    public Bot(boolean onValge) {
-        this.onValge = onValge;
+    public Bot() {
         this.malelaud = new Malelaud();
-
     }
 
     /**
-     * Tagastab käigu, mida teha üritab. Enda laual seda päriselt ei tee
-     * @return
+     * Tagastab käigu kujul: [algX, algY, sihtX, sihtY]
      */
     abstract public int[] annaKaik();
 
-    /**
-     * Ootab alati, et server annaks talle käigu
-     * @param kaik
-     */
-    public void teeKaik(int[] kaik){
+    public void teeKaik(int[] kaik) {
         malelaud.teeKaik(kaik);
     }
 
     public BotSocket createSocket() throws IOException {
         BotSocket socket = new BotSocket();
-        this.in  = socket.getBotIn();
+        this.in = socket.getBotIn();
         this.out = socket.getBotOut();
         Thread t = new Thread(this, "Bot-" + (onValge ? "white" : "black"));
         t.setDaemon(true);
@@ -45,57 +36,85 @@ public abstract class Bot implements Runnable{
     @Override
     public void run() {
         try {
-            handleInit();
-            boolean myTurn = onValge;
-            while (true) {
-                if (myTurn) {
-                    myTurn = !handleMyTurn();
-                } else {
-                    if (!handleOpponentTurn()) break;
-                    myTurn = true;
-                }
-            }
-        } catch (IOException e) {
-            System.out.println("Bot: connection closed — " + e.getMessage());
-        }
-    }
-
-    private void handleInit() throws IOException {
-        in.readInt(); // length
-        in.readInt(); // manguAlgus
-        in.readInt(); // color
-        out.writeInt(1);
-        out.flush();
-    }
-
-    private boolean handleMyTurn() throws IOException {
-        int[] kaik = annaKaik();
-        out.writeInt(kaik.length + 1);
-        out.writeInt(Suhtlus.kaiguKood);
-        for (int v : kaik) out.writeInt(v);
-        out.flush();
-
-        in.readInt();                    // consume the loeKoik confirmation (always 1)
-        int response = in.readInt();     // now read the actual kaikOk / illegaalneKaik
-
-        if (response == Suhtlus.koikOk) {
-            teeKaik(kaik);
-            return true;
-        }
-        return false;
-    }
-    private boolean handleOpponentTurn() throws IOException {
-        int length = in.readInt();
-        int[] msg  = new int[length];
-        for (int i = 0; i < length; i++) msg[i] = in.readInt();
-
-        if (msg[0] == Suhtlus.manguLopp)  return false;
-
-        if (msg[0] == Suhtlus.kaiguKood) {
+            // Mängu alguse initsialiseerimine
+            in.readInt(); // pikkus (2)
+            in.readInt(); // kood (manguAlgus - 126)
+            int varv = in.readInt(); // 1 (valge) või 2 (must)
+            this.onValge = (varv == Suhtlus.valge);
             out.writeInt(1);
-            out.flush();
-            teeKaik(Arrays.copyOfRange(msg, 1, msg.length));
+
+            // Loeb laua algseisu
+            Suhtlus.loeKoik(in, out);
+
+            boolean minuKord = this.onValge;
+
+            // Põhiline mängutsükkel
+            while (true) {
+                if (minuKord) {
+                    endaKaik();
+                } else {
+                    teiseKaik();
+                }
+                minuKord = !minuKord;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        return true;
+    }
+
+    public void endaKaik() throws IOException {
+        int[] kaik = annaKaik();
+
+        out.writeInt(3);
+        out.writeInt(Suhtlus.klikkTehti);
+        out.writeInt(kaik[0]);
+        out.writeInt(kaik[1]);
+        in.readInt();
+
+        int vastus = in.readInt();
+        if (vastus == Suhtlus.saadanVoimalikud) {
+            Suhtlus.loeKoik(in, out);
+        } else if (vastus == Suhtlus.voimalikudPuuduvad || vastus == Suhtlus.saadaUusKlikk) {
+            return;
+        }
+
+        out.writeInt(3);
+        out.writeInt(Suhtlus.klikkTehti);
+        out.writeInt(kaik[2]);
+        out.writeInt(kaik[3]);
+        in.readInt();
+
+        vastus = in.readInt();
+        if (vastus == Suhtlus.kaiguLopp) {
+            teeKaik(kaik);
+        }
+
+        int pikkus = in.readInt();
+        int kood = in.readInt();
+        if (kood == Suhtlus.kaiguKood) {
+            in.readInt(); // startX
+            in.readInt(); // startY
+            in.readInt(); // endX
+            in.readInt(); // endY
+            out.writeInt(1);
+        }
+    }
+
+    public void teiseKaik() throws IOException {
+        int pikkus = in.readInt();
+        int kood = in.readInt();
+
+        if (kood == Suhtlus.manguLopp) {
+            int tulemus = in.readInt();
+            System.exit(0);
+        } else if (kood == Suhtlus.kaiguKood) {
+            int startX = in.readInt();
+            int startY = in.readInt();
+            int endX = in.readInt();
+            int endY = in.readInt();
+
+            out.writeInt(1);
+            teeKaik(new int[]{startX, startY, endX, endY});
+        }
     }
 }
