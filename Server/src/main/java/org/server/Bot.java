@@ -9,6 +9,7 @@ public abstract class Bot implements Runnable {
     public boolean onValge;
     private DataOutputStream out;
     private DataInputStream in;
+    private boolean mangLabi = false;
 
     public Bot() {
         this.malelaud = new Malelaud();
@@ -49,7 +50,7 @@ public abstract class Bot implements Runnable {
             boolean minuKord = this.onValge;
 
             // Põhiline mängutsükkel
-            while (true) {
+            while (!mangLabi) {
                 if (minuKord) {
                     endaKaik();
                 } else {
@@ -106,7 +107,7 @@ public abstract class Bot implements Runnable {
 
         if (kood == Suhtlus.manguLopp) {
             int tulemus = in.readInt();
-            System.exit(0);
+            mangLabi = true;
         } else if (kood == Suhtlus.kaiguKood) {
             int startX = in.readInt();
             int startY = in.readInt();

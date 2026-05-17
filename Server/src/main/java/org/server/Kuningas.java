@@ -13,6 +13,8 @@ public class Kuningas extends Malenupp {
                 if (i != 0 || j != 0) kaigud.add(List.of(new Asukoht(i,j)));
             }
         }
+        kaigud.add(List.of(new Asukoht(2, 0)));
+        kaigud.add(List.of(new Asukoht(-2, 0)));
     }
 
     @Override
