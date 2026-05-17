@@ -9,6 +9,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocket;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import java.io.DataInputStream;
@@ -75,9 +76,18 @@ public class HelloApplication extends Application {
         ühendaNupp.setOnAction(e -> new Thread(() -> {
             try {
                 Platform.runLater(() -> veateade.setText("Ootan ühendust."));
-                Socket server = ctx.getSocketFactory().createSocket(ipVäli.getText().trim(), Integer.parseInt(portVäli.getText().trim()));
+                SSLSocket server = (SSLSocket) ctx.getSocketFactory().createSocket(ipVäli.getText().trim(), Integer.parseInt(portVäli.getText().trim()));
+                server.startHandshake();
                 DataOutputStream out = new DataOutputStream(server.getOutputStream());
                 DataInputStream in = new DataInputStream(server.getInputStream());
+
+                boolean botiVastu = bott.isSelected();
+                out.writeBoolean(botiVastu);
+                System.out.println(botiVastu);
+                if (!botiVastu) {
+                    out.writeUTF(ruumikoodiVäli.getText());
+                    System.out.println(ruumikoodiVäli.getText());
+                }
 
                 // Muutujate ette valmistamine
                 final boolean onValge = Suhtlus.kasValge(in, out);

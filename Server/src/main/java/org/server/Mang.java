@@ -12,11 +12,13 @@ public class Mang implements Runnable {
 
     private final Socket valgeSocket;
     private final Socket mustSocket;
+    private final boolean botiVastu;
 
 
-    public Mang(Socket valge, Socket must) {
+    public Mang(Socket valge, Socket must, boolean botiVastu) {
         this.valgeSocket = valge;
         this.mustSocket = must;
+        this.botiVastu = botiVastu;
     }
 
     @Override
