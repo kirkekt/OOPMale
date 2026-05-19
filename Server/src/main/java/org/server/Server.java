@@ -36,6 +36,7 @@ public class Server {
 
             while (true) {
                 SSLSocket uhenduja = (SSLSocket) ss.accept();
+                System.out.println("Keegi ühendub: " + uhenduja.getLocalAddress());
                 uhenduja.startHandshake();
                 new Thread(new UhenduseLooja(uhenduja, ruumid, latchid)).start();
             }
