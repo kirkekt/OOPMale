@@ -32,7 +32,7 @@ public class UhenduseLooja implements Runnable {
             System.out.println(bot);
 
             if (bot) {
-                Bot vastane = new RandoBot();
+                Bot vastane = new ParemBotv1(5);
                 new Thread(new Mang(uhenduja, vastane.createSocket(), true)).start();
             } else {
                 String ruumiKood = in.readUTF();
