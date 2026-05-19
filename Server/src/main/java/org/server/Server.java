@@ -18,7 +18,7 @@ import java.util.concurrent.CountDownLatch;
 public class Server {
     public static void main(String[] args) throws Exception {
         File storeFile = new File("keystore.p12");
-        String storePass = "secret";
+        String storePass = "a1g!HD1uUBX@YE";
 
         KeyStore store = KeyStore.getInstance(storeFile, storePass.toCharArray());
         KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());

@@ -32,7 +32,7 @@ public class HelloApplication extends Application {
 
         // Serveri ühenduse loomine
         File storeFile = new File("truststore.p12");
-        String storePass = "secret";
+        String storePass = "a1g!HD1uUBX@YE";
 
         KeyStore store = KeyStore.getInstance(storeFile, storePass.toCharArray());
         TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
