@@ -56,7 +56,10 @@ public class Asukoht {
         Asukoht asukoht = (Asukoht) o;
         return x == asukoht.x && y == asukoht.y;
     }
-
+    public static Asukoht koopia(Asukoht other){
+        if (other == null) return null;
+        return new Asukoht(other.getX(), other.getY());
+    }
     @Override
     public String toString() {
         return "Asukoht{" +

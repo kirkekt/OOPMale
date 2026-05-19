@@ -74,57 +74,82 @@ public class Malelaud {
     interface BoardFunction<T> {
         T apply(Malelaud malelaud);
     }
-    public <T> T kutsuFunktsioonPealeSimuleerimist(Asukoht vanaAsukoht, Asukoht uusAsukoht, BoardFunction<T> f){
+    public <T> T kutsuFunktsioonPealeSimuleerimist(Asukoht vanaAsukoht, Asukoht uusAsukoht, BoardFunction<T> f) {
         Malenupp liigutatavNupp = misNuppRuudul(vanaAsukoht);
         Malenupp araVoetavNupp = misNuppRuudul(uusAsukoht);
-        Malenupp enPassantMalu = null;
-        if (enPassantKatse(liigutatavNupp, uusAsukoht)){
-            enPassantMalu = misNuppRuudul(enPassantVoimalus);
-            enPassantMalu.setElus(false);
-            tabelisEsitus[enPassantMalu.getX()][enPassantMalu.getY()] = null;
-        }
-        tabelisEsitus[uusAsukoht.getX()][uusAsukoht.getY()] = tabelisEsitus[vanaAsukoht.getX()][vanaAsukoht.getY()];
-        tabelisEsitus[vanaAsukoht.getX()][vanaAsukoht.getY()] = null;
-        boolean oliLiikunud = liigutatavNupp.isOnLiikunud();
-        liigutatavNupp.liiguta(uusAsukoht.lahuta(vanaAsukoht));
-        if (araVoetavNupp!=null) araVoetavNupp.setElus(false);
-        Malenupp vanker = null;
-        if (kasProovitakseVangerdada(liigutatavNupp, uusAsukoht)){
-            vanker = leiaVangerduseVanker((Kuningas) liigutatavNupp, uusAsukoht);
-            tabelisEsitus[vanker.getX()][vanker.getY()] = null;
-            if (vanker.getAsukoht().getX() == 7) {
-                // lühike vangerdus
-                vanker.liiguta(-2, 0);
-            } else {
-                // pikk vangerdus
-                vanker.liiguta(3, 0);
-            }
-            tabelisEsitus[vanker.getX()][vanker.getY()] = vanker;
-        }
-        T vastus = f.apply(this);
-        if (kasProovitakseVangerdada(liigutatavNupp, uusAsukoht)){
-            tabelisEsitus[vanker.getX()][vanker.getY()] = null;
-            if (vanker.getAsukoht().getX() == 5) {
-                // lühike vangerdus
-                vanker.liiguta(2, 0);
-            } else {
-                // pikk vangerdus
-                vanker.liiguta(-3, 0);
-            }
-            tabelisEsitus[vanker.getX()][vanker.getY()] = vanker;
-            vanker.setOnLiikunud(false);
-        }
-            if (araVoetavNupp!=null) araVoetavNupp.setElus(true);
-        liigutatavNupp.liiguta(vanaAsukoht.lahuta(uusAsukoht));
-        liigutatavNupp.setOnLiikunud(oliLiikunud);
-        tabelisEsitus[vanaAsukoht.getX()][vanaAsukoht.getY()] = tabelisEsitus[uusAsukoht.getX()][uusAsukoht.getY()];
-        tabelisEsitus[uusAsukoht.getX()][uusAsukoht.getY()] = araVoetavNupp;
-        if (enPassantKatse(liigutatavNupp, uusAsukoht)){
-            enPassantMalu.setElus(true);
-            tabelisEsitus[enPassantMalu.getX()][enPassantMalu.getY()] = enPassantMalu;
-        }
-        return vastus;
 
+        Asukoht oldEnPassant = Asukoht.koopia(enPassantVoimalus);
+
+        boolean tehtiEnPassant = false;
+        Malenupp enPassantMalu = null;
+
+        boolean tehtiVangerdus = kasProovitakseVangerdada(liigutatavNupp, uusAsukoht);
+        Malenupp vanker = null;
+
+        try {
+            if (enPassantKatse(liigutatavNupp, uusAsukoht)
+                    && enPassantVoimalus != null
+                    && sobivEnPassantKatse(liigutatavNupp, uusAsukoht)) {
+                enPassantMalu = misNuppRuudul(enPassantVoimalus);
+                if (enPassantMalu != null) {
+                    tehtiEnPassant = true;
+                    enPassantMalu.setElus(false);
+                    tabelisEsitus[enPassantMalu.getX()][enPassantMalu.getY()] = null;
+                }
+            }
+
+            tabelisEsitus[uusAsukoht.getX()][uusAsukoht.getY()] = tabelisEsitus[vanaAsukoht.getX()][vanaAsukoht.getY()];
+            tabelisEsitus[vanaAsukoht.getX()][vanaAsukoht.getY()] = null;
+
+            boolean oliLiikunud = liigutatavNupp.isOnLiikunud();
+            liigutatavNupp.liiguta(uusAsukoht.lahuta(vanaAsukoht));
+
+            if (araVoetavNupp != null) {
+                araVoetavNupp.setElus(false);
+            }
+
+            if (tehtiVangerdus) {
+                vanker = leiaVangerduseVanker((Kuningas) liigutatavNupp, uusAsukoht);
+                tabelisEsitus[vanker.getX()][vanker.getY()] = null;
+                if (vanker.getAsukoht().getX() == 7) {
+                    vanker.liiguta(-2, 0);
+                } else {
+                    vanker.liiguta(3, 0);
+                }
+                tabelisEsitus[vanker.getX()][vanker.getY()] = vanker;
+            }
+
+            T vastus = f.apply(this);
+
+            if (tehtiVangerdus) {
+                tabelisEsitus[vanker.getX()][vanker.getY()] = null;
+                if (vanker.getAsukoht().getX() == 5) {
+                    vanker.liiguta(2, 0);
+                } else {
+                    vanker.liiguta(-3, 0);
+                }
+                tabelisEsitus[vanker.getX()][vanker.getY()] = vanker;
+                vanker.setOnLiikunud(false);
+            }
+
+            if (araVoetavNupp != null) {
+                araVoetavNupp.setElus(true);
+            }
+
+            liigutatavNupp.liiguta(vanaAsukoht.lahuta(uusAsukoht));
+            liigutatavNupp.setOnLiikunud(oliLiikunud);
+            tabelisEsitus[vanaAsukoht.getX()][vanaAsukoht.getY()] = tabelisEsitus[uusAsukoht.getX()][uusAsukoht.getY()];
+            tabelisEsitus[uusAsukoht.getX()][uusAsukoht.getY()] = araVoetavNupp;
+
+            if (tehtiEnPassant && enPassantMalu != null) {
+                enPassantMalu.setElus(true);
+                tabelisEsitus[enPassantMalu.getX()][enPassantMalu.getY()] = enPassantMalu;
+            }
+
+            return vastus;
+        } finally {
+            enPassantVoimalus = oldEnPassant;
+        }
     }
     /**
      * Vaatab, kas nuppu on võimalik liigutada sihtruudule. Ei kontrolli,
@@ -148,8 +173,9 @@ public class Malelaud {
         if (oigeSuunaDeltad == null)
             return false; // Nupul võimatu sellist käiku teha
 
-        if (enPassantKatse(nupp, sihtAsukoht) && !sobivEnPassantKatse(nupp, sihtAsukoht)){
-            return false;
+        if (enPassantKatse(nupp, sihtAsukoht))
+            if(enPassantVoimalus == null || !sobivEnPassantKatse(nupp, sihtAsukoht)){
+                return false;
         }
         // Kui ettur edasi üritab liikuda, siis peab ruut tühi olema.
         if (nupp instanceof Ettur && nupp.getX() == sihtAsukoht.getX() && misNuppRuudul(sihtAsukoht) != null){
@@ -436,8 +462,8 @@ public class Malelaud {
         }
         //teame, et ühtegi käiku ei saa teha. Kui on tuli, siis on kaotus, muidu viik
         // kui valge peaks käigu tegema aga ei saa ja on tuli, siis must võitis. (ja vastupidi).
-        System.out.println("Tulemus on:");
-        System.out.println(onTuli(valgeKaik)?(valgeKaik ? -1 : 1) : 67);
+        // System.out.println("Tulemus on:");
+        // System.out.println(onTuli(valgeKaik)?(valgeKaik ? -1 : 1) : 67);
         return onTuli(valgeKaik)?(valgeKaik ? -1 : 1) : 67;
     }
 
