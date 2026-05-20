@@ -35,10 +35,6 @@ public abstract class Malenupp {
      */
     protected abstract List<List<Asukoht>> kaiguDeltad();
 
-    /**
-     * Tagastab
-     * @return
-     */
     public List<List<Asukoht>> voimalikudKaigud(){
         List<List<Asukoht>> kaigud = new ArrayList<>();
 

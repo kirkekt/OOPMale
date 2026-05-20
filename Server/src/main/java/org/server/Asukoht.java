@@ -1,7 +1,5 @@
 package org.server;
 
-import java.util.Objects;
-
 /**
  * Praktikas 2d vektor
  */
@@ -31,23 +29,12 @@ public class Asukoht {
         return new Asukoht(this.getX()+delta.getX(), this.getY() + delta.getY());
     }
 
-    // setterid on erandjuhtudeks (nt vangerdamise jaoks ja katsetamise jaoks
-    // ideaalis ei tohi neid kasutada
-
     public int getX() {
         return x;
     }
 
-    public void setX(int x) {
-        this.x = x;
-    }
-
     public int getY() {
         return y;
-    }
-
-    public void setY(int y) {
-        this.y = y;
     }
 
     @Override
@@ -62,9 +49,6 @@ public class Asukoht {
     }
     @Override
     public String toString() {
-        return "Asukoht{" +
-                "x=" + x +
-                ", y=" + y +
-                '}';
+        return "Asukoht("+x+", "+y+")";
     }
 }

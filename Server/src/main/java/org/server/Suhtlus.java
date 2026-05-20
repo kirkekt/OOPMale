@@ -105,12 +105,13 @@ public class Suhtlus {
     // LUGEMISED
     public static int[] loeKoik(DataInputStream in, DataOutputStream out) throws IOException {
         int pikkus = in.readInt();
+        if (pikkus < 0 || pikkus > 1000) throw new IOException("Packet liiga suur");
         int[] tagastus = new int[pikkus];
 
         for (int i = 0; i < pikkus; i++) {
             tagastus[i] = in.readInt();
         }
-        System.out.println("Sain: pikkus - " + pikkus + ", sisu - " + Arrays.toString(tagastus));
+        //System.out.println("Sain: pikkus - " + pikkus + ", sisu - " + Arrays.toString(tagastus));
 
         out.writeInt(1);
         return tagastus;
@@ -120,15 +121,5 @@ public class Suhtlus {
         int[] klikk = loeKoik(in, out);
         if (klikk[0] != klikkTehti) throw new RuntimeException("Ei saadetud klikki, saadeti: " + Arrays.toString(klikk));
         return new Asukoht(klikk[1], klikk[2]);
-    }
-
-
-    // ABI
-    public static int[] kustutaKood(int[] sisu) {
-        int[] tagastus = new int[sisu.length-1];
-        for (int i = 1; i < sisu.length; i++) {
-            tagastus[i-1] = sisu[i];
-        }
-        return tagastus;
     }
 }

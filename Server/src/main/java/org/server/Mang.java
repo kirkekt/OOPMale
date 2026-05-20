@@ -2,11 +2,9 @@ package org.server;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.IOException;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 public class Mang implements Runnable {
 
@@ -44,7 +42,6 @@ public class Mang implements Runnable {
 
             // Algatab mängu loop-i
             while (true) {
-                System.out.println("uus ring");
                 if (valgeKord) {
                     kaiguTegijaIn = valgeIn;
                     kaiguTegijaOut = valgeOut;
@@ -61,43 +58,33 @@ public class Mang implements Runnable {
                     Asukoht klikk = Suhtlus.loeKlikk(kaiguTegijaIn, kaiguTegijaOut);
 
                     if (voimalikud.contains(klikk)) {
-                        if (liigutatav != null) {
-                            System.out.println("liigutan: " + liigutatav + " -> " + klikk);
-                            malelaud.teeKaik(liigutatav, klikk);
-                            if (malelaud.asendatavaEtturiAsukoht() != null) {
-                                malelaud.asendaEttur("Lipp");
-                            }
-                            malelaud.uuendaSeisuLoendur();
-                            kaiguTegijaOut.writeInt(Suhtlus.kaiguLopp);
-
-                            List<Malenupp> koikNupud = malelaud.getKoikNupud();
-                            koikNupud.removeIf(x -> !x.isElus());
-                            Suhtlus.saadaLaud(valgeIn, valgeOut, koikNupud);
-                            if (botiVastu) {
-                                System.out.println(liigutatav);
-                                System.out.println(klikk);
-                                mustOut.writeInt(5);
-                                mustOut.writeInt(Suhtlus.kaiguKood);
-                                mustOut.writeInt(liigutatav.getX());
-                                mustOut.writeInt(liigutatav.getY());
-                                mustOut.writeInt(klikk.getX());
-                                mustOut.writeInt(klikk.getY());
-                                mustIn.readInt();
-                            } else{
-                                Suhtlus.saadaLaud(mustIn, mustOut, koikNupud);
-                            }
-
-                            valgeKord = !valgeKord;
-                            break;
+                        System.out.println("liigutan: " + liigutatav + " -> " + klikk);
+                        malelaud.teeKaik(liigutatav, klikk);
+                        if (malelaud.asendatavaEtturiAsukoht() != null) {
+                            malelaud.asendaEttur("Lipp");
                         }
-                    }
+                        malelaud.uuendaSeisuLoendur();
+                        kaiguTegijaOut.writeInt(Suhtlus.kaiguLopp);
 
-                    List<Malenupp> nupud;
-                    if (valgeKord) {
-                        nupud = malelaud.getValgedNupud();
-                    }
-                    else {
-                        nupud = malelaud.getMustadNupud();
+                        List<Malenupp> koikNupud = malelaud.getKoikNupud();
+                        koikNupud.removeIf(x -> !x.isElus());
+                        Suhtlus.saadaLaud(valgeIn, valgeOut, koikNupud);
+                        if (botiVastu) {
+                            System.out.println(liigutatav);
+                            System.out.println(klikk);
+                            mustOut.writeInt(5);
+                            mustOut.writeInt(Suhtlus.kaiguKood);
+                            mustOut.writeInt(liigutatav.getX());
+                            mustOut.writeInt(liigutatav.getY());
+                            mustOut.writeInt(klikk.getX());
+                            mustOut.writeInt(klikk.getY());
+                            mustIn.readInt();
+                        } else{
+                            Suhtlus.saadaLaud(mustIn, mustOut, koikNupud);
+                        }
+
+                        valgeKord = !valgeKord;
+                        break;
                     }
 
                     Malenupp nupp = malelaud.misNuppRuudul(klikk);
@@ -116,16 +103,13 @@ public class Mang implements Runnable {
 
                 int kasManguLopp = malelaud.mangLabi(valgeKord);
                 if (kasManguLopp != 0) {
-                    switch (kasManguLopp) {
-                        case 1:
-                            System.out.println("Valge võitis");
-                            break;
-                        case -1:
-                            System.out.println("Must võitis");
-                            break;
-                        case 67:
-                            System.out.println("Haahaa viiki jäi");
-                    }
+                    String tulemus = switch (kasManguLopp) {
+                        case 1 -> "Valge võitis";
+                        case -1 -> "Must võitis";
+                        case 67 -> "Haahaa viiki jäi";
+                        default -> "midagi läks valesti";
+                    };
+                    System.out.println(tulemus);
                     Suhtlus.teavitaEtManguLopp(valgeOut, mustOut, kasManguLopp);
                     break;
                 }

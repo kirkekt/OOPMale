@@ -357,7 +357,6 @@ public class Malelaud {
         teeKaik(algneAsukoht, uusAsukoht);
     }
 
-
     public void teeKaik(Asukoht algneAsukoht, Asukoht uusAsukoht) {
         Asukoht deltaKaik = uusAsukoht.lahuta(algneAsukoht);
         Malenupp liigutatavNupp = misNuppRuudul(algneAsukoht);
@@ -409,10 +408,7 @@ public class Malelaud {
         }
         return asendatavEttur.getAsukoht();
     }
-    /**
-     *
-     * @param asendus
-     */
+
     public void asendaEttur(String asendus){
         switch (asendus){
             case "Oda" :
@@ -434,9 +430,8 @@ public class Malelaud {
     }
     /**
      * Kutsutakse välja käigu alguses (okei tehniliselt käigu lõpus aga vastase värviga, sama asi)
-     * Hetkel tagastab 0 kui mäng jätkub, 1 kui valge võitis, -1 kui must võitis ja 67 kui seis on viik.
-     * @param valgeKaik
-     * @return
+     * @param valgeKaik kas käiku alustav mängija on valge
+     * @return 0 kui mäng jätkub, 1 kui valge võitis, -1 kui must võitis ja 67 kui seis on viik.
      */
     int mangLabi(boolean valgeKaik){
         if (seisudKordsusega.containsValue(3) || poolKaikudeLoendaja == 100)

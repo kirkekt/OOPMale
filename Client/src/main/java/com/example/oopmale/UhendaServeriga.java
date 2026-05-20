@@ -5,8 +5,6 @@ import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.stage.Stage;
 
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSocket;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.net.Socket;
@@ -48,7 +46,6 @@ public class UhendaServeriga implements Runnable {
 
     @Override
     public void run() {
-
         try {
             Platform.runLater(() -> veateade.setText("Ootan ühendust."));
             Socket server =  new Socket(ip, port);
@@ -65,6 +62,7 @@ public class UhendaServeriga implements Runnable {
             DataOutputStream out = new DataOutputStream(server.getOutputStream());
             DataInputStream in = new DataInputStream(server.getInputStream());
 
+            out.writeUTF(System.getenv("MALE_PASS"));
             out.writeBoolean(botiVastu);
             System.out.println(botiVastu);
             if (!botiVastu) {
@@ -76,7 +74,7 @@ public class UhendaServeriga implements Runnable {
 
             // Muutujate ette valmistamine
             final boolean onValge = Suhtlus.kasValge(in, out);
-            GameLoop gl = new GameLoop(onValge, in, out);
+            GameLoop gl = new GameLoop(in, out);
             LauaVaade lauaVaade = new LauaVaade(onValge, gl, stage, algstseen);
             gl.setLauaVaade(lauaVaade);
 

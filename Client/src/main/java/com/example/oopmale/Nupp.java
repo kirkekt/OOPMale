@@ -66,15 +66,6 @@ public class Nupp {
         return valge;
     }
 
-    public boolean kasAsubSiin(int x, int y) {
-        return this.x == x && this.y == y;
-    }
-
-    public void liiguta(int x, int y) {
-        this.x = x;
-        this.y = y;
-    }
-
     public int getX() {
         return x;
     }

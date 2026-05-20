@@ -1,39 +1,21 @@
 package com.example.oopmale;
 
 import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSocket;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.TrustManagerFactory;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.net.Socket;
-import java.security.KeyManagementException;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
-
 public class HelloApplication extends Application {
 
-    private String ipAdress = "localhost";
-
     @Override
-    public void start(Stage stage) throws IOException, CertificateException, KeyStoreException, NoSuchAlgorithmException, KeyManagementException {
+    public void start(Stage stage) {
 
         // Mängu alguse stseen
 
-        TextField ipVäli = new TextField("2.tcp.eu.ngrok.io");
-        TextField portVäli = new TextField("16167");
+        TextField ipVäli = new TextField("5.tcp.eu.ngrok.io");
+        TextField portVäli = new TextField("16084");
         TextField ruumikoodiVäli = new TextField("ABCD");
         Label veateade = new Label();
         veateade.setStyle("-fx-text-fill: red;");
@@ -49,7 +31,7 @@ public class HelloApplication extends Application {
 
         Label ruumikoodLabel = new Label("Ruumikood:");
         ruumikoodiVäli.setDisable(true);
-        valik.selectedToggleProperty().addListener((obs, oldVal, newVal) -> {
+        valik.selectedToggleProperty().addListener((_, _, newVal) -> {
             boolean onInimene = newVal == inimene;
             ruumikoodiVäli.setDisable(!onInimene);
         });

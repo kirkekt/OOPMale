@@ -11,14 +11,12 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 public class GameLoop implements Runnable{
 
-    private boolean onValge;
     private DataInputStream in;
     private DataOutputStream out;
     private LauaVaade lauaVaade;
     private BlockingQueue<int[]> klikid = new LinkedBlockingQueue<>();
 
-    public GameLoop(boolean onValge, DataInputStream in, DataOutputStream out) {
-        this.onValge = onValge;
+    public GameLoop(DataInputStream in, DataOutputStream out) {
         this.in = in;
         this.out = out;
     }

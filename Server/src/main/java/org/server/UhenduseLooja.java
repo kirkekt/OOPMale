@@ -1,20 +1,22 @@
 package org.server;
 
-import javax.net.ssl.SSLSocket;
+
+import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.FileReader;
 import java.net.Socket;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 
 public class UhenduseLooja implements Runnable {
 
-    private Socket uhenduja;
-    Map<String, List<Socket>> ruumid;
-    Map<String, CountDownLatch> latchid;
+    private static int mangVsBot = 0;
+    private final Socket uhenduja;
+    private final Map<String, List<Socket>> ruumid;
+    private final Map<String, CountDownLatch> latchid;
 
     public UhenduseLooja(Socket uhenduja, Map<String, List<Socket>> ruumid, Map<String, CountDownLatch> latchid) {
         this.uhenduja = uhenduja;
@@ -26,15 +28,16 @@ public class UhenduseLooja implements Runnable {
     public void run() {
         try {
             DataInputStream in = new DataInputStream(uhenduja.getInputStream());
+            String pass = new BufferedReader(new FileReader("pass.txt")).readLine();
+            if (!in.readUTF().equals(pass)) uhenduja.close();
             boolean bot = in.readBoolean();
-            System.out.println(bot);
 
             if (bot) {
                 Bot vastane = new ParemBotv1(5);
-                new Thread(new Mang(uhenduja, vastane.createSocket(), true)).start();
+                new Thread(new Mang(uhenduja, vastane.createSocket(), true), "Mang-vs-bot-"+mangVsBot++).start();
+                System.out.println("Algas " + mangVsBot + ". mäng boti vastu");
             } else {
                 String ruumiKood = in.readUTF();
-                System.out.println(ruumiKood);
                 while (true) {
                     List<Socket> ruum = ruumid.computeIfAbsent(ruumiKood, _ -> new CopyOnWriteArrayList<>());
                     CountDownLatch latch = latchid.computeIfAbsent(ruumiKood, k -> new CountDownLatch(2));
@@ -52,22 +55,18 @@ public class UhenduseLooja implements Runnable {
 
 
                     if (ruum != null) {
-                        try {
-                            new DataOutputStream(ruum.get(0).getOutputStream()).writeInt(1);
-                            new DataInputStream(ruum.get(0).getInputStream()).readInt();
-                            new DataOutputStream(ruum.get(1).getOutputStream()).writeInt(1);
-                            new DataInputStream(ruum.get(1).getInputStream()).readInt();
-                            new Thread(new Mang(ruum.get(0), ruum.get(1), false)).start();
-                            break;
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
+                        new DataOutputStream(ruum.get(0).getOutputStream()).writeInt(1);
+                        new DataInputStream(ruum.get(0).getInputStream()).readInt();
+                        new DataOutputStream(ruum.get(1).getOutputStream()).writeInt(1);
+                        new DataInputStream(ruum.get(1).getInputStream()).readInt();
+                        new Thread(new Mang(ruum.get(0), ruum.get(1), false), "Mang-ruumis-" + ruumiKood).start();
+                        System.out.println("Algas mäng ruumis "+ ruumiKood);
+                        break;
                     }
-
                 }
             }
         } catch (Exception e) {
-            new RuntimeException(e);
+            throw new RuntimeException(e);
         }
     }
 }
