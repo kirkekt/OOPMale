@@ -9,19 +9,19 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocket;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-
+import java.net.Socket;
 
 
 public class UhendaServeriga implements Runnable {
 
     private static boolean elus = false;
 
-    public static synchronized UhendaServeriga create(Label veateade, Stage stage, SSLContext ctx, String ip, int port, String ruumikood, boolean botiVastu, Scene algstseen) {
+    public static synchronized UhendaServeriga create(Label veateade, Stage stage, String ip, int port, String ruumikood, boolean botiVastu, Scene algstseen) {
         if (elus) {
             return null;
         }
         elus = true;
-        return new UhendaServeriga(veateade, stage, ctx, ip, port, ruumikood, botiVastu, algstseen);
+        return new UhendaServeriga(veateade, stage, ip, port, ruumikood, botiVastu, algstseen);
     }
 
     public static synchronized void destroy() {
@@ -30,17 +30,15 @@ public class UhendaServeriga implements Runnable {
 
     private Label veateade;
     private Stage stage;
-    private SSLContext ctx;
     private String ip;
     private int port;
     private String ruumikood;
     private boolean botiVastu;
     private Scene algstseen;
 
-    private UhendaServeriga(Label veateade, Stage stage, SSLContext ctx, String ip, int port, String ruumikood, boolean botiVastu, Scene algstseen) {
+    private UhendaServeriga(Label veateade, Stage stage, String ip, int port, String ruumikood, boolean botiVastu, Scene algstseen) {
         this.veateade = veateade;
         this.stage = stage;
-        this.ctx = ctx;
         this.ip = ip;
         this.port = port;
         this.ruumikood = ruumikood;
@@ -53,8 +51,7 @@ public class UhendaServeriga implements Runnable {
 
         try {
             Platform.runLater(() -> veateade.setText("Ootan ühendust."));
-            SSLSocket server = (SSLSocket) ctx.getSocketFactory().createSocket(ip, port);
-            server.startHandshake();
+            Socket server =  new Socket(ip, port);
             Platform.runLater(() -> {
                 stage.setOnCloseRequest(ev -> {
                     try {

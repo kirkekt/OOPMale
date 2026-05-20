@@ -17,27 +17,16 @@ import java.util.concurrent.CountDownLatch;
 
 public class Server {
     public static void main(String[] args) throws Exception {
-        File storeFile = new File("keystore.p12");
-        String storePass = "a1g!HD1uUBX@YE";
 
-        KeyStore store = KeyStore.getInstance(storeFile, storePass.toCharArray());
-        KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-        kmf.init(store, storePass.toCharArray());
-        KeyManager[] keyManagers = kmf.getKeyManagers();
-
-        SSLContext ctx = SSLContext.getInstance("TLS");
-        ctx.init(keyManagers, null, null);
-
-        try (ServerSocket ss = ctx.getServerSocketFactory().createServerSocket(1337)) {
+        try (ServerSocket ss = new ServerSocket(1337)) {
             System.out.println("now listening on localhost:1337");
 
             Map<String, List<Socket>> ruumid = new ConcurrentHashMap<>();
             Map<String, CountDownLatch> latchid = new ConcurrentHashMap<>();
 
             while (true) {
-                SSLSocket uhenduja = (SSLSocket) ss.accept();
-                System.out.println("Keegi ühendub: " + uhenduja.getLocalAddress());
-                uhenduja.startHandshake();
+                Socket uhenduja = ss.accept();
+                System.out.println("Keegi ühendub: " + uhenduja.getRemoteSocketAddress());
                 new Thread(new UhenduseLooja(uhenduja, ruumid, latchid)).start();
             }
         }

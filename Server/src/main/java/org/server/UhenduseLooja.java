@@ -12,11 +12,11 @@ import java.util.concurrent.CountDownLatch;
 
 public class UhenduseLooja implements Runnable {
 
-    private SSLSocket uhenduja;
+    private Socket uhenduja;
     Map<String, List<Socket>> ruumid;
     Map<String, CountDownLatch> latchid;
 
-    public UhenduseLooja(SSLSocket uhenduja, Map<String, List<Socket>> ruumid, Map<String, CountDownLatch> latchid) {
+    public UhenduseLooja(Socket uhenduja, Map<String, List<Socket>> ruumid, Map<String, CountDownLatch> latchid) {
         this.uhenduja = uhenduja;
         this.ruumid = ruumid;
         this.latchid = latchid;
@@ -26,8 +26,6 @@ public class UhenduseLooja implements Runnable {
     public void run() {
         try {
             DataInputStream in = new DataInputStream(uhenduja.getInputStream());
-            DataOutputStream out = new DataOutputStream(uhenduja.getOutputStream());
-            System.out.println("siin");
             boolean bot = in.readBoolean();
             System.out.println(bot);
 

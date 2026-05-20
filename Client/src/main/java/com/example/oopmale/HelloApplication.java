@@ -30,19 +30,6 @@ public class HelloApplication extends Application {
     @Override
     public void start(Stage stage) throws IOException, CertificateException, KeyStoreException, NoSuchAlgorithmException, KeyManagementException {
 
-        // Serveri ühenduse loomine
-        File storeFile = new File("truststore.p12");
-        String storePass = "a1g!HD1uUBX@YE";
-
-        KeyStore store = KeyStore.getInstance(storeFile, storePass.toCharArray());
-        TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-        tmf.init(store);
-        TrustManager[] trustManagers = tmf.getTrustManagers();
-
-        SSLContext ctx = SSLContext.getInstance("TLS");
-        ctx.init(null, trustManagers, null);
-
-
         // Mängu alguse stseen
 
         TextField ipVäli = new TextField("2.tcp.eu.ngrok.io");
@@ -79,7 +66,7 @@ public class HelloApplication extends Application {
             String ruumiKood = ruumikoodiVäli.getText().trim();
             int port = Integer.parseInt(portVäli.getText().trim());
             String ip = ipVäli.getText().trim();
-            new Thread(UhendaServeriga.create(veateade, stage, ctx, ip, port, ruumiKood, botiVastu, algStseen)).start();
+            new Thread(UhendaServeriga.create(veateade, stage, ip, port, ruumiKood, botiVastu, algStseen)).start();
         });
     }
 }
