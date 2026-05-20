@@ -28,7 +28,9 @@ public class UhenduseLooja implements Runnable {
     public void run() {
         try {
             DataInputStream in = new DataInputStream(uhenduja.getInputStream());
-            String pass = new BufferedReader(new FileReader("pass.txt")).readLine();
+            BufferedReader br = new BufferedReader(new FileReader("pass.txt"));
+            String pass = br.readLine().strip();
+            System.out.println(pass);
             if (!in.readUTF().equals(pass)) uhenduja.close();
             boolean bot = in.readBoolean();
 

@@ -21,13 +21,11 @@ public class Server {
             while (true) {
                 Socket uhenduja = ss.accept();
                 System.out.println("Keegi ühendub: " + uhenduja.getRemoteSocketAddress());
-                new Thread(() -> {
                     try {
-                        new UhenduseLooja(uhenduja, ruumid, latchid);
+                        new Thread(new UhenduseLooja(uhenduja, ruumid, latchid)).start();
                     } catch (Exception e) {
                         throw new RuntimeException("Klient feilis: " + e);
-                    }
-                    }).start();
+                    };
             }
         }
     }
