@@ -70,7 +70,9 @@ public class Mang implements Runnable {
                         List<Malenupp> koikNupud = malelaud.getKoikNupud();
                         koikNupud.removeIf(x -> !x.isElus());
                         kasManguLopp = malelaud.mangLabi(valgeKord);
-                        if (kasManguLopp == 0) {
+                        if (kasManguLopp != 0) {
+                            break;
+                        }
                             Suhtlus.saadaLaud(valgeIn, valgeOut, koikNupud);
                             if (botiVastu) {
                                 System.out.println(liigutatav);
@@ -85,14 +87,14 @@ public class Mang implements Runnable {
                             } else {
                                 Suhtlus.saadaLaud(mustIn, mustOut, koikNupud);
                             }
-                        }
+
 
                         valgeKord = !valgeKord;
                         break;
                     }
 
                     Malenupp nupp = malelaud.misNuppRuudul(klikk);
-                    if (nupp!=null) {
+                    if (nupp!=null && nupp.onValge() == valgeKord) {
                         liigutatav = klikk;
                         voimalikud = malelaud.nupuVoimalikudKaigud(nupp);
                         if (voimalikud.isEmpty()) kaiguTegijaOut.writeInt(Suhtlus.voimalikudPuuduvad);
