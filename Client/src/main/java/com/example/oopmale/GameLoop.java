@@ -5,6 +5,7 @@ import javafx.application.Platform;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -32,14 +33,16 @@ public class GameLoop implements Runnable{
     @Override
     public void run() {
         try {
+            Set<Nupp> laud = new HashSet<>();
             int[] tulemus = new int[]{0};
             boolean kaib = true;
             while (kaib) {
-                Set<Nupp> laud = Suhtlus.loeLaud(in, out, tulemus);
+                laud = Suhtlus.loeLaud(in, out, tulemus);
                 if (laud == null) {
                     break;
                 }
-                Platform.runLater(() -> lauaVaade.uuendaLaud(laud));
+                var fl = laud;
+                Platform.runLater(() -> lauaVaade.uuendaLaud(fl));
                 lauaVaade.setMinuKaik(true);
 
                 while (true) {
@@ -52,9 +55,10 @@ public class GameLoop implements Runnable{
                     if (serveriVastus == Suhtlus.kaiguLopp) {
                         lauaVaade.setMinuKaik(false);
                         klikid.clear();
-                        Set<Nupp> uuslaud = Suhtlus.loeLaud(in, out, tulemus);
-                        if (uuslaud == null) {kaib = false; break;}
-                        Platform.runLater(() -> lauaVaade.uuendaLaud(uuslaud));
+                        laud = Suhtlus.loeLaud(in, out, tulemus);
+                        if (laud == null) {kaib = false; break;}
+                        var fl1 = laud;
+                        Platform.runLater(() -> lauaVaade.uuendaLaud(fl1));
                         break;
                     }
 

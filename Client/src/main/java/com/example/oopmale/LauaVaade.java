@@ -135,11 +135,13 @@ public class LauaVaade {
 
     public void uuendaVoimalikud(int nupuX, int nupuY, int[][] voimalikudKaigud) {
         int x = nupuX+1;
-        int y = 8-nupuY;
+        int y = onValge ? 8-nupuY : nupuY+1;
         voimalikud.add(new Rectangle(80, 80, Color.BURLYWOOD), x, y);
         for (int[] i : voimalikudKaigud) {
+            x = i[0]+1;
+            y = onValge ? 8-i[1] : i[1]+1;
             Circle ring = new Circle(0, 0, 15, Color.BURLYWOOD);
-            voimalikud.add(ring, i[0]+1, 8-i[1]);
+            voimalikud.add(ring, x, y);
         }
     }
 

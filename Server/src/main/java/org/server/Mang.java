@@ -46,8 +46,7 @@ public class Mang implements Runnable {
                 if (valgeKord) {
                     kaiguTegijaIn = valgeIn;
                     kaiguTegijaOut = valgeOut;
-                }
-                else {
+                } else {
                     kaiguTegijaIn = mustIn;
                     kaiguTegijaOut = mustOut;
                 }
@@ -69,32 +68,30 @@ public class Mang implements Runnable {
 
                         List<Malenupp> koikNupud = malelaud.getKoikNupud();
                         koikNupud.removeIf(x -> !x.isElus());
+
                         kasManguLopp = malelaud.mangLabi(valgeKord);
                         if (kasManguLopp != 0) {
                             break;
                         }
-                            Suhtlus.saadaLaud(valgeIn, valgeOut, koikNupud);
-                            if (botiVastu) {
-                                System.out.println(liigutatav);
-                                System.out.println(klikk);
-                                mustOut.writeInt(5);
-                                mustOut.writeInt(Suhtlus.kaiguKood);
-                                mustOut.writeInt(liigutatav.getX());
-                                mustOut.writeInt(liigutatav.getY());
-                                mustOut.writeInt(klikk.getX());
-                                mustOut.writeInt(klikk.getY());
-                                mustIn.readInt();
-                            } else {
-                                Suhtlus.saadaLaud(mustIn, mustOut, koikNupud);
-                            }
-
+                        Suhtlus.saadaLaud(valgeIn, valgeOut, koikNupud);
+                        if (botiVastu) {
+                            mustOut.writeInt(5);
+                            mustOut.writeInt(Suhtlus.kaiguKood);
+                            mustOut.writeInt(liigutatav.getX());
+                            mustOut.writeInt(liigutatav.getY());
+                            mustOut.writeInt(klikk.getX());
+                            mustOut.writeInt(klikk.getY());
+                            mustIn.readInt();
+                        } else {
+                            Suhtlus.saadaLaud(mustIn, mustOut, koikNupud);
+                        }
 
                         valgeKord = !valgeKord;
                         break;
                     }
 
                     Malenupp nupp = malelaud.misNuppRuudul(klikk);
-                    if (nupp!=null && nupp.onValge() == valgeKord) {
+                    if (nupp != null && nupp.onValge() == valgeKord) {
                         liigutatav = klikk;
                         voimalikud = malelaud.nupuVoimalikudKaigud(nupp);
                         if (voimalikud.isEmpty()) kaiguTegijaOut.writeInt(Suhtlus.voimalikudPuuduvad);
@@ -106,6 +103,8 @@ public class Mang implements Runnable {
                         kaiguTegijaOut.writeInt(Suhtlus.saadaUusKlikk);
                     }
                 }
+
+                kasManguLopp = malelaud.mangLabi(valgeKord);
 
                 if (kasManguLopp != 0) {
                     String tulemus = switch (kasManguLopp) {

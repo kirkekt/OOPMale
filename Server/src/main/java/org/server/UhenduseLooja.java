@@ -36,7 +36,7 @@ public class UhenduseLooja implements Runnable {
 
             if (bot) {
                 Bot vastane = new ParemBotv1(5);
-                new Thread(new Mang(uhenduja, vastane.createSocket(), true), "Mang-vs-bot-"+mangVsBot++).start();
+                new Thread(new Mang(uhenduja, vastane.createSocket(), true), "Mang-vs-bot-" + mangVsBot++).start();
                 System.out.println("Algas " + mangVsBot + ". mäng boti vastu");
             } else {
                 String ruumiKood = in.readUTF();
@@ -57,14 +57,21 @@ public class UhenduseLooja implements Runnable {
 
 
                     if (ruum != null) {
-                        new DataOutputStream(ruum.get(0).getOutputStream()).writeInt(1);
-                        new DataInputStream(ruum.get(0).getInputStream()).readInt();
-                        new DataOutputStream(ruum.get(1).getOutputStream()).writeInt(1);
-                        new DataInputStream(ruum.get(1).getInputStream()).readInt();
-                        new Thread(new Mang(ruum.get(0), ruum.get(1), false), "Mang-ruumis-" + ruumiKood).start();
-                        System.out.println("Algas mäng ruumis "+ ruumiKood);
-                        break;
+                        try {
+                            new DataOutputStream(ruum.get(0).getOutputStream()).writeInt(1);
+                            new DataInputStream(ruum.get(0).getInputStream()).readInt();
+                            new DataOutputStream(ruum.get(1).getOutputStream()).writeInt(1);
+                            new DataInputStream(ruum.get(1).getInputStream()).readInt();
+                            new Thread(new Mang(ruum.get(0), ruum.get(1), false), "Mang-ruumis-" + ruumiKood).start();
+                            System.out.println("Algas mäng ruumis " + ruumiKood);
+                            System.out.println(ruumid);
+                            System.out.println(latchid);
+                            break;
+                        } catch (Exception _) {
+                            continue;
+                        }
                     }
+                    break;
                 }
             }
         } catch (Exception e) {
