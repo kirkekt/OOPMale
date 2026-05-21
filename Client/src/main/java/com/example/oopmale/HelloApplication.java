@@ -14,8 +14,8 @@ public class HelloApplication extends Application {
 
         // Mängu alguse stseen
 
-        TextField ipVäli = new TextField("5.tcp.eu.ngrok.io");
-        TextField portVäli = new TextField("16084");
+        TextField ipVäli = new TextField("4.tcp.eu.ngrok.io");
+        TextField portVäli = new TextField("25238");
         TextField ruumikoodiVäli = new TextField("ABCD");
         Label veateade = new Label();
         veateade.setStyle("-fx-text-fill: red;");

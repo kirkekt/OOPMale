@@ -33,7 +33,7 @@ public class GameLoop implements Runnable{
     @Override
     public void run() {
         try {
-            Set<Nupp> laud = new HashSet<>();
+            Set<Nupp> laud;
             int[] tulemus = new int[]{0};
             boolean kaib = true;
             while (kaib) {

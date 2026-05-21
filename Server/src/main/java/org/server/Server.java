@@ -4,13 +4,14 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 
 public class Server {
     public static void main(String[] args) throws Exception {
 
-        int port = 1337;
+        int port = Integer.parseInt(new Scanner(System.in).nextLine());
 
         try (ServerSocket ss = new ServerSocket(port)) {
             System.out.println("Kuulan portil: " + port);
