@@ -25,7 +25,7 @@ public class LauaVaade {
     private GridPane ruudustik = new GridPane();
     private GridPane nupud = new GridPane();
     private GridPane voimalikud = new GridPane();
-    private StackPane laud = new StackPane(ruudustik, voimalikud, nupud);
+    private StackPane laud = new StackPane(voimalikud, nupud);
 
     private boolean onValge;
     private boolean minuKaik;
@@ -41,7 +41,6 @@ public class LauaVaade {
         this.algStseen = algStseen;
         nupud.setMouseTransparent(true);
         voimalikud.setMouseTransparent(true);
-        voimalikud.setMinSize(720, 720);
         ehitaLaud();
     }
 
@@ -65,11 +64,13 @@ public class LauaVaade {
                     // top-left empty corner
                 } else if (rida == 0) {
                     Label täht = new Label(Character.toString((char) ('A' + veerg - 1)));
+                    täht.setMaxWidth(Double.MAX_VALUE);
                     täht.setAlignment(Pos.CENTER);
                     ruudustik.add(täht, veerg, rida);
                 } else if (veerg == 0) {
                     Label number = new Label(Integer.toString(reaNumber));
                     number.setMinWidth(30);
+                    number.setMaxWidth(Double.MAX_VALUE);
                     number.setAlignment(Pos.CENTER);
                     ruudustik.add(number, veerg, rida);
                 } else {
@@ -90,20 +91,20 @@ public class LauaVaade {
                 }
             }
         }
-        for (GridPane grid : List.of(ruudustik, nupud, voimalikud)) {
-            grid.getColumnConstraints().add(new ColumnConstraints(30));
-            grid.getRowConstraints().add(new RowConstraints(40));
+        /*for (GridPane grid : List.of(ruudustik, nupud, voimalikud)) {
+            grid.getColumnConstraints().add(new ColumnConstraints(60));
+            grid.getRowConstraints().add(new RowConstraints(60));
             for (int i = 1; i < 8; i++) {
                 ColumnConstraints col = new ColumnConstraints(80);
                 RowConstraints    row = new RowConstraints(80);
                 grid.getColumnConstraints().add(col);
                 grid.getRowConstraints().add(row);
             }
-        }
+        }*/
     }
 
-    public StackPane getVaade() {
-        return laud;
+    public GridPane getVaade() {
+        return ruudustik;
     }
 
     private ImageView getPilt(Nupp nupp) {
@@ -120,16 +121,19 @@ public class LauaVaade {
 
     public void uuendaLaud(Set<Nupp> lauaOlek) {
         nupud.getChildren().clear();
+        ruudustik.getChildren().clear();
+        ehitaLaud();
 
         if (lauaOlek == null) return;
 
         lauaOlek.forEach(
-                malend -> nupud.add(getPilt(malend), malend.getX()+1, onValge ? 8-malend.getY() : malend.getY()+1)
+                malend -> ruudustik.add(getPilt(malend), malend.getX()+1, onValge ? 8-malend.getY() : malend.getY()+1)
         );
     }
 
     public void uuendaVoimalikud(int nupuX, int nupuY, int[][] voimalikudKaigud) {
-        voimalikud.add(new Rectangle(80, 80, Color.BURLYWOOD), nupuX+1, nupuY+1);
+        //voimalikud.add(new Rectangle(80, 80, Color.BURLYWOOD), nupuX+1, nupuY+1);
+        return;
     }
 
     public void mangLabi(int tulemus) throws IOException { // saad võtta koodid Suhtlus.voit, Suhtlus.viik ja Suhtlus.kaotus
