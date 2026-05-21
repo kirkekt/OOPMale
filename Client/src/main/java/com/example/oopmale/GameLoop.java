@@ -31,11 +31,11 @@ public class GameLoop implements Runnable{
 
     @Override
     public void run() {
-
         try {
+            int[] tulemus = new int[]{0};
             boolean kaib = true;
             while (kaib) {
-                Set<Nupp> laud = Suhtlus.loeLaud(in, out);
+                Set<Nupp> laud = Suhtlus.loeLaud(in, out, tulemus);
                 if (laud == null) {
                     break;
                 }
@@ -46,12 +46,13 @@ public class GameLoop implements Runnable{
                     int[] klikk = klikid.take();
                     int serveriVastus = Suhtlus.saadaKlikk(in, out, klikk[0], klikk[1]);
                     System.out.println("Server vastas klikile koodiga: "+serveriVastus);
+                    Platform.runLater(() -> lauaVaade.clearVoimalikud());
 
                     //kaik sai läbi, uuendab laua ja jääb vastase laua uuendust ootama
                     if (serveriVastus == Suhtlus.kaiguLopp) {
                         lauaVaade.setMinuKaik(false);
                         klikid.clear();
-                        Set<Nupp> uuslaud = Suhtlus.loeLaud(in, out);
+                        Set<Nupp> uuslaud = Suhtlus.loeLaud(in, out, tulemus);
                         if (uuslaud == null) {kaib = false; break;}
                         Platform.runLater(() -> lauaVaade.uuendaLaud(uuslaud));
                         break;
@@ -70,7 +71,7 @@ public class GameLoop implements Runnable{
                     }
                 }
             }
-            lauaVaade.mangLabi(Suhtlus.tulemus);
+            lauaVaade.mangLabi(tulemus[0]);
         } catch (IOException | InterruptedException e) {
             throw new RuntimeException(e);
         }

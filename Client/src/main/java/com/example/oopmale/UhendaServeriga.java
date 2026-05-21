@@ -79,7 +79,7 @@ public class UhendaServeriga implements Runnable {
             gl.setLauaVaade(lauaVaade);
 
             // Malelaua ette valmistamine
-            lauaVaade.uuendaLaud(Suhtlus.loeLaud(in, out));
+            lauaVaade.uuendaLaud(Suhtlus.loeLaud(in, out, new int[0]));
             Scene scene = new Scene(lauaVaade.getVaade(), 700, 700);
 
             Platform.runLater(() -> {

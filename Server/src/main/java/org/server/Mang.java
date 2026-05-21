@@ -23,6 +23,7 @@ public class Mang implements Runnable {
     public void run() {
         // Tekitab malelaua
         Malelaud malelaud = new Malelaud();
+        int kasManguLopp = 0;
 
         // Avab suhtlus-Streamid
         try (DataInputStream mustIn = new DataInputStream(mustSocket.getInputStream());
@@ -68,19 +69,22 @@ public class Mang implements Runnable {
 
                         List<Malenupp> koikNupud = malelaud.getKoikNupud();
                         koikNupud.removeIf(x -> !x.isElus());
-                        Suhtlus.saadaLaud(valgeIn, valgeOut, koikNupud);
-                        if (botiVastu) {
-                            System.out.println(liigutatav);
-                            System.out.println(klikk);
-                            mustOut.writeInt(5);
-                            mustOut.writeInt(Suhtlus.kaiguKood);
-                            mustOut.writeInt(liigutatav.getX());
-                            mustOut.writeInt(liigutatav.getY());
-                            mustOut.writeInt(klikk.getX());
-                            mustOut.writeInt(klikk.getY());
-                            mustIn.readInt();
-                        } else{
-                            Suhtlus.saadaLaud(mustIn, mustOut, koikNupud);
+                        kasManguLopp = malelaud.mangLabi(valgeKord);
+                        if (kasManguLopp == 0) {
+                            Suhtlus.saadaLaud(valgeIn, valgeOut, koikNupud);
+                            if (botiVastu) {
+                                System.out.println(liigutatav);
+                                System.out.println(klikk);
+                                mustOut.writeInt(5);
+                                mustOut.writeInt(Suhtlus.kaiguKood);
+                                mustOut.writeInt(liigutatav.getX());
+                                mustOut.writeInt(liigutatav.getY());
+                                mustOut.writeInt(klikk.getX());
+                                mustOut.writeInt(klikk.getY());
+                                mustIn.readInt();
+                            } else {
+                                Suhtlus.saadaLaud(mustIn, mustOut, koikNupud);
+                            }
                         }
 
                         valgeKord = !valgeKord;
@@ -101,7 +105,6 @@ public class Mang implements Runnable {
                     }
                 }
 
-                int kasManguLopp = malelaud.mangLabi(valgeKord);
                 if (kasManguLopp != 0) {
                     String tulemus = switch (kasManguLopp) {
                         case 1 -> "Valge võitis";

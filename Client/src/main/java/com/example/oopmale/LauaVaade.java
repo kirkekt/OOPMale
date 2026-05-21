@@ -9,10 +9,12 @@ import javafx.geometry.VPos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.effect.BlendMode;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 
@@ -25,7 +27,7 @@ public class LauaVaade {
     private GridPane ruudustik = new GridPane();
     private GridPane nupud = new GridPane();
     private GridPane voimalikud = new GridPane();
-    private StackPane laud = new StackPane(voimalikud, nupud);
+    private StackPane laud = new StackPane(ruudustik, voimalikud, nupud);
 
     private boolean onValge;
     private boolean minuKaik;
@@ -91,20 +93,21 @@ public class LauaVaade {
                 }
             }
         }
-        /*for (GridPane grid : List.of(ruudustik, nupud, voimalikud)) {
-            grid.getColumnConstraints().add(new ColumnConstraints(60));
-            grid.getRowConstraints().add(new RowConstraints(60));
-            for (int i = 1; i < 8; i++) {
+        for (GridPane grid : List.of(ruudustik, nupud, voimalikud)) {
+            grid.getColumnConstraints().add(new ColumnConstraints(40));
+            grid.getRowConstraints().add(new RowConstraints(40));
+            for (int i = 1; i < 9; i++) {
                 ColumnConstraints col = new ColumnConstraints(80);
+                col.setHalignment(HPos.CENTER);
                 RowConstraints    row = new RowConstraints(80);
                 grid.getColumnConstraints().add(col);
                 grid.getRowConstraints().add(row);
             }
-        }*/
+        }
     }
 
-    public GridPane getVaade() {
-        return ruudustik;
+    public StackPane getVaade() {
+        return laud;
     }
 
     private ImageView getPilt(Nupp nupp) {
@@ -121,19 +124,23 @@ public class LauaVaade {
 
     public void uuendaLaud(Set<Nupp> lauaOlek) {
         nupud.getChildren().clear();
-        ruudustik.getChildren().clear();
-        ehitaLaud();
+        voimalikud.getChildren().clear();
 
         if (lauaOlek == null) return;
 
         lauaOlek.forEach(
-                malend -> ruudustik.add(getPilt(malend), malend.getX()+1, onValge ? 8-malend.getY() : malend.getY()+1)
+                malend -> nupud.add(getPilt(malend), malend.getX()+1, onValge ? 8-malend.getY() : malend.getY()+1)
         );
     }
 
     public void uuendaVoimalikud(int nupuX, int nupuY, int[][] voimalikudKaigud) {
-        //voimalikud.add(new Rectangle(80, 80, Color.BURLYWOOD), nupuX+1, nupuY+1);
-        return;
+        int x = nupuX+1;
+        int y = 8-nupuY;
+        voimalikud.add(new Rectangle(80, 80, Color.BURLYWOOD), x, y);
+        for (int[] i : voimalikudKaigud) {
+            Circle ring = new Circle(0, 0, 15, Color.BURLYWOOD);
+            voimalikud.add(ring, i[0]+1, 8-i[1]);
+        }
     }
 
     public void mangLabi(int tulemus) throws IOException { // saad võtta koodid Suhtlus.voit, Suhtlus.viik ja Suhtlus.kaotus
@@ -158,5 +165,9 @@ public class LauaVaade {
             stage.setScene(new Scene(lõppLayout, 300, 200));
             stage.setTitle("Mäng läbi");
         });
+    }
+
+    public void clearVoimalikud() {
+        voimalikud.getChildren().clear();
     }
 }
