@@ -1,7 +1,6 @@
 package com.example.oopmale;
 
 import javafx.application.Platform;
-import javafx.collections.ObservableList;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -9,17 +8,17 @@ import javafx.geometry.VPos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.effect.BlendMode;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 public class LauaVaade {
@@ -27,7 +26,14 @@ public class LauaVaade {
     private GridPane ruudustik = new GridPane();
     private GridPane nupud = new GridPane();
     private GridPane voimalikud = new GridPane();
-    private StackPane laud = new StackPane(ruudustik, voimalikud, nupud);
+    private GridPane valitudNupp = new GridPane();
+    private StackPane laud = new StackPane(ruudustik, valitudNupp, nupud, voimalikud);
+    private BorderPane lauaHoidja = new BorderPane();
+    private Set<Nupp> lauaNupud;
+
+    private static final Color lauaVarv1 = Color.web("#3A3A3A"/*"#A9A9A9"*/);
+    private static final Color lauaVarv2 = Color.web("#2A2A2A"/*"#36454F"*/);
+
 
     private boolean onValge;
     private boolean minuKaik;
@@ -41,8 +47,13 @@ public class LauaVaade {
         this.gl = gl;
         this.stage = stage;
         this.algStseen = algStseen;
-        nupud.setMouseTransparent(true);
-        voimalikud.setMouseTransparent(true);
+        ruudustik.setBackground(new Background(new BackgroundFill(lauaVarv1, null, null)));
+        laud.setAlignment(Pos.CENTER);
+        ruudustik.setAlignment(Pos.CENTER);
+        voimalikud.setAlignment(Pos.CENTER);
+        valitudNupp.setAlignment(Pos.CENTER);
+        nupud.setAlignment(Pos.CENTER);
+        lauaHoidja.setCenter(laud);
         ehitaLaud();
     }
 
@@ -66,11 +77,13 @@ public class LauaVaade {
                     // top-left empty corner
                 } else if (rida == 0) {
                     Label täht = new Label(Character.toString((char) ('A' + veerg - 1)));
+                    täht.setStyle("-fx-font-weight: bold; -fx-text-fill: #7A7A7A");
                     täht.setMaxWidth(Double.MAX_VALUE);
                     täht.setAlignment(Pos.CENTER);
                     ruudustik.add(täht, veerg, rida);
                 } else if (veerg == 0) {
                     Label number = new Label(Integer.toString(reaNumber));
+                    number.setStyle("-fx-font-weight: bold; -fx-text-fill: #7A7A7A");
                     number.setMinWidth(30);
                     number.setMaxWidth(Double.MAX_VALUE);
                     number.setAlignment(Pos.CENTER);
@@ -80,9 +93,9 @@ public class LauaVaade {
 
                     boolean kasTulebValgeRuut = (rida + veerg) % 2 == 0;
                     if (onValge) {
-                        ruut.setFill(kasTulebValgeRuut ? Color.WHITE : Color.GREEN);
+                        ruut.setFill(kasTulebValgeRuut ? lauaVarv1 : lauaVarv2);
                     } else {
-                        ruut.setFill(!kasTulebValgeRuut ? Color.WHITE : Color.GREEN);
+                        ruut.setFill(!kasTulebValgeRuut ? lauaVarv1 : lauaVarv2);
                     }
 
                     int x = veerg - 1;
@@ -93,21 +106,23 @@ public class LauaVaade {
                 }
             }
         }
-        for (GridPane grid : List.of(ruudustik, nupud, voimalikud)) {
+        for (GridPane grid : List.of(ruudustik, nupud, voimalikud, valitudNupp)) {
+            if (!grid.equals(ruudustik)) grid.setMouseTransparent(true);
+            grid.setAlignment(Pos.CENTER);
             grid.getColumnConstraints().add(new ColumnConstraints(40));
             grid.getRowConstraints().add(new RowConstraints(40));
             for (int i = 1; i < 9; i++) {
                 ColumnConstraints col = new ColumnConstraints(80);
+                RowConstraints row = new RowConstraints(80);
                 col.setHalignment(HPos.CENTER);
-                RowConstraints    row = new RowConstraints(80);
                 grid.getColumnConstraints().add(col);
                 grid.getRowConstraints().add(row);
             }
         }
     }
 
-    public StackPane getVaade() {
-        return laud;
+    public BorderPane getVaade() {
+        return lauaHoidja;
     }
 
     private ImageView getPilt(Nupp nupp) {
@@ -116,9 +131,6 @@ public class LauaVaade {
 
         Image pilt = new Image(getClass().getResourceAsStream("/pildid/" + värv + "/" + failiNimi + ".png"));
         ImageView vaade = new ImageView(pilt);
-        GridPane.setHalignment(vaade, HPos.CENTER);
-        GridPane.setValignment(vaade, VPos.CENTER);
-        vaade.setMouseTransparent(true);
         return vaade;
     }
 
@@ -127,7 +139,12 @@ public class LauaVaade {
         voimalikud.getChildren().clear();
 
         if (lauaOlek == null) return;
+        lauaNupud = lauaOlek;
 
+        // Malendite pildid:
+        // https://x.com/dr_smey
+        // https://www.instagram.com/dr.smey
+        // https://www.reddit.com/r/PixelArt/comments/pmfegd/sets_of_chess_pieces/
         lauaOlek.forEach(
                 malend -> nupud.add(getPilt(malend), malend.getX()+1, onValge ? 8-malend.getY() : malend.getY()+1)
         );
@@ -136,12 +153,25 @@ public class LauaVaade {
     public void uuendaVoimalikud(int nupuX, int nupuY, int[][] voimalikudKaigud) {
         int x = nupuX+1;
         int y = onValge ? 8-nupuY : nupuY+1;
-        voimalikud.add(new Rectangle(80, 80, Color.BURLYWOOD), x, y);
+        Set<Nupp> nu = new HashSet<>(lauaNupud);
+        nu.removeIf(n -> n.getX() != nupuX || n.getY() != nupuY);
+
+        Nupp nupp = new Nupp(Suhtlus.vEttur, 0, 0);
+        Optional<Nupp> vbNupp = nu.stream().findAny();
+        if (vbNupp.isPresent()) {
+            nupp = vbNupp.get();
+        }
+
+        Image pilt = new Image(getClass().getResourceAsStream("/pildid/outline-vari/" + nupp.getMalend() + ".png"));
+
+        valitudNupp.add(new ImageView(pilt), x, y);
+
         for (int[] i : voimalikudKaigud) {
+            Rectangle ruut = new Rectangle(14, 14, onValge ? Color.WHITE : Color.BLACK);
+            ruut.setOpacity(0.4);
             x = i[0]+1;
             y = onValge ? 8-i[1] : i[1]+1;
-            Circle ring = new Circle(0, 0, 15, Color.BURLYWOOD);
-            voimalikud.add(ring, x, y);
+            voimalikud.add(ruut, x, y);
         }
     }
 
@@ -171,5 +201,6 @@ public class LauaVaade {
 
     public void clearVoimalikud() {
         voimalikud.getChildren().clear();
+        valitudNupp.getChildren().clear();
     }
 }

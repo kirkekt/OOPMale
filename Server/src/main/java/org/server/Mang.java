@@ -34,78 +34,70 @@ public class Mang implements Runnable {
             // Teavitab mõlemat mängijat
             Suhtlus.init(valgeOut, valgeIn, mustOut, mustIn, malelaud);
 
-            // Valmistab ette muutujad
             boolean valgeKord = true;
-            DataInputStream kaiguTegijaIn;
-            DataOutputStream kaiguTegijaOut;
 
             Suhtlus.saadaLaud(valgeIn, valgeOut, malelaud.getKoikNupud());
 
             // Algatab mängu loop-i
             while (true) {
-                if (valgeKord) {
-                    kaiguTegijaIn = valgeIn;
-                    kaiguTegijaOut = valgeOut;
-                } else {
-                    kaiguTegijaIn = mustIn;
-                    kaiguTegijaOut = mustOut;
-                }
-
+                DataInputStream kaiguTegijaIn = valgeKord ? valgeIn : mustIn;
+                DataOutputStream kaiguTegijaOut = valgeKord ? valgeOut : mustOut;
                 List<Asukoht> voimalikud = new ArrayList<>();
                 Asukoht liigutatav = null;
 
+                // küsib kliendilt klikke kuni klient saab käigu tehtud
                 while (true) {
                     Asukoht klikk = Suhtlus.loeKlikk(kaiguTegijaIn, kaiguTegijaOut);
 
-                    if (voimalikud.contains(klikk)) {
-                        System.out.println("liigutan: " + liigutatav + " -> " + klikk);
-                        malelaud.teeKaik(liigutatav, klikk);
-                        if (malelaud.asendatavaEtturiAsukoht() != null) {
-                            malelaud.asendaEttur("Lipp");
+                    // vaatab, kas tahetakse teha käiku (else) või klikitakse kuhugi mujale
+                    if (!voimalikud.contains(klikk)) {
+
+                        // vaatab kas klikitud ruudul on nupp, millega käigu tegija tohib käiku teha ning mis selle nupu võimalikud käigud on
+                        Malenupp nupp = malelaud.misNuppRuudul(klikk);
+                        if (nupp != null && nupp.onValge() == valgeKord) {
+                            liigutatav = klikk;
+                            voimalikud = malelaud.nupuVoimalikudKaigud(nupp);
+                            if (voimalikud.isEmpty()) kaiguTegijaOut.writeInt(Suhtlus.voimalikudPuuduvad);
+                            else {
+                                kaiguTegijaOut.writeInt(Suhtlus.saadanVoimalikud);
+                                Suhtlus.saadaVoimalikud(kaiguTegijaIn, kaiguTegijaOut, voimalikud);
+                            }
                         }
+                        else {
+                            kaiguTegijaOut.writeInt(Suhtlus.saadaUusKlikk);
+                        }
+
+                    }
+                    else {
+
+                        // teeb käigu ära (kuna klikitud ruut oli eelnevalt valitud nupu võimalike käikude seas)
+                        // ning teeb ka kõik muud sellega kaasnevad protseduurid
+                        malelaud.teeKaik(liigutatav, klikk);
+                        //System.out.println("liigutan: " + liigutatav + " -> " + klikk);
+                        if (malelaud.asendatavaEtturiAsukoht() != null) malelaud.asendaEttur("Lipp");
                         malelaud.uuendaSeisuLoendur();
                         kaiguTegijaOut.writeInt(Suhtlus.kaiguLopp);
+                        valgeKord = !valgeKord;
 
+                        // vaatab kas mäng on läbi
+                        kasManguLopp = malelaud.mangLabi(valgeKord);
+                        if (kasManguLopp != 0) break;
+
+
+                        // võtab nuppude nimekirja ning eemaldab kõik surnud nupud enne klientidele saatmist
                         List<Malenupp> koikNupud = malelaud.getKoikNupud();
                         koikNupud.removeIf(x -> !x.isElus());
 
-                        kasManguLopp = malelaud.mangLabi(valgeKord);
-                        if (kasManguLopp != 0) {
-                            break;
-                        }
+                        //saadab klientidele laua (või botile käigu, mis tehti)
                         Suhtlus.saadaLaud(valgeIn, valgeOut, koikNupud);
-                        if (botiVastu) {
-                            mustOut.writeInt(5);
-                            mustOut.writeInt(Suhtlus.kaiguKood);
-                            mustOut.writeInt(liigutatav.getX());
-                            mustOut.writeInt(liigutatav.getY());
-                            mustOut.writeInt(klikk.getX());
-                            mustOut.writeInt(klikk.getY());
-                            mustIn.readInt();
-                        } else {
-                            Suhtlus.saadaLaud(mustIn, mustOut, koikNupud);
-                        }
+                        if (botiVastu) Suhtlus.saadaBotileKaik(mustIn, mustOut, liigutatav, klikk);
+                        else Suhtlus.saadaLaud(mustIn, mustOut, koikNupud);
 
-                        valgeKord = !valgeKord;
                         break;
-                    }
-
-                    Malenupp nupp = malelaud.misNuppRuudul(klikk);
-                    if (nupp != null && nupp.onValge() == valgeKord) {
-                        liigutatav = klikk;
-                        voimalikud = malelaud.nupuVoimalikudKaigud(nupp);
-                        if (voimalikud.isEmpty()) kaiguTegijaOut.writeInt(Suhtlus.voimalikudPuuduvad);
-                        else {
-                            kaiguTegijaOut.writeInt(Suhtlus.saadanVoimalikud);
-                            Suhtlus.saadaVoimalikud(kaiguTegijaIn, kaiguTegijaOut, voimalikud);
-                        }
-                    } else {
-                        kaiguTegijaOut.writeInt(Suhtlus.saadaUusKlikk);
                     }
                 }
 
-                kasManguLopp = malelaud.mangLabi(valgeKord);
-
+                // kui mäng lõppes lõpetab mängu loopi
                 if (kasManguLopp != 0) {
                     String tulemus = switch (kasManguLopp) {
                         case 1 -> "Valge võitis";

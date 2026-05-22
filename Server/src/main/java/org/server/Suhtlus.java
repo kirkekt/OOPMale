@@ -101,6 +101,15 @@ public class Suhtlus {
         if (in.readInt() != 1) throw new RuntimeException("Ei sanud kliendilt koikOK koodi");
     }
 
+    public static void saadaBotileKaik(DataInputStream botIn, DataOutputStream botOut, Asukoht liigutatav, Asukoht kaik) throws IOException {
+        botOut.writeInt(5);
+        botOut.writeInt(Suhtlus.kaiguKood);
+        botOut.writeInt(liigutatav.getX());
+        botOut.writeInt(liigutatav.getY());
+        botOut.writeInt(kaik.getX());
+        botOut.writeInt(kaik.getY());
+        botIn.readInt();
+    }
 
     // LUGEMISED
     public static int[] loeKoik(DataInputStream in, DataOutputStream out) throws IOException {
