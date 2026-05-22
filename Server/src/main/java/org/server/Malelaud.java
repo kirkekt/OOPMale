@@ -389,6 +389,7 @@ public class Malelaud {
         }
         tabelisEsitus[liigutatavNupp.getX()][liigutatavNupp.getY()] = null;
         liigutatavNupp.liiguta(deltaKaik);
+        liigutatavNupp.setOnLiikunud(true);
         tabelisEsitus[liigutatavNupp.getX()][liigutatavNupp.getY()] = liigutatavNupp;
         // kui ettur on esimesel või viimasel real (ehk 7|y), siis küsi hiljem, keda asendada tahad
         asendatavEttur = null;
