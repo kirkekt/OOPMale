@@ -95,6 +95,7 @@ public class UhendaServeriga implements Runnable {
         } catch (Exception ex) {
             UhendaServeriga.destroy();
             Platform.runLater(() -> veateade.setText("Viga: " + ex.getMessage()));
+            throw new RuntimeException(ex);
         }
     }
 }
