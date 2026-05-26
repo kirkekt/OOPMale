@@ -14,12 +14,12 @@ public class UhendaServeriga implements Runnable {
 
     private static boolean elus = false;
 
-    public static synchronized UhendaServeriga create(Label veateade, Stage stage, String ip, int port, String ruumikood, boolean botiVastu, Scene algstseen) {
+    public static synchronized UhendaServeriga create(Label veateade, Stage stage, String ip, int port, String ruumikood, boolean botiVastu, Scene algstseen, String pass) {
         if (elus) {
             return null;
         }
         elus = true;
-        return new UhendaServeriga(veateade, stage, ip, port, ruumikood, botiVastu, algstseen);
+        return new UhendaServeriga(veateade, stage, ip, port, ruumikood, botiVastu, algstseen, pass);
     }
 
     public static synchronized void destroy() {
@@ -33,8 +33,9 @@ public class UhendaServeriga implements Runnable {
     private String ruumikood;
     private boolean botiVastu;
     private Scene algstseen;
+    private final String pass;
 
-    private UhendaServeriga(Label veateade, Stage stage, String ip, int port, String ruumikood, boolean botiVastu, Scene algstseen) {
+    private UhendaServeriga(Label veateade, Stage stage, String ip, int port, String ruumikood, boolean botiVastu, Scene algstseen, String pass) {
         this.veateade = veateade;
         this.stage = stage;
         this.ip = ip;
@@ -42,6 +43,7 @@ public class UhendaServeriga implements Runnable {
         this.ruumikood = ruumikood;
         this.botiVastu = botiVastu;
         this.algstseen = algstseen;
+        this.pass = pass;
     }
 
     @Override
@@ -62,14 +64,14 @@ public class UhendaServeriga implements Runnable {
             DataOutputStream out = new DataOutputStream(server.getOutputStream());
             DataInputStream in = new DataInputStream(server.getInputStream());
 
-            out.writeUTF(System.getenv("MALE_PASS"));
+            out.writeUTF(pass);
             out.writeBoolean(botiVastu);
-            System.out.println(botiVastu);
+            //System.out.println(botiVastu);
             if (!botiVastu) {
                 out.writeUTF(ruumikood);
                 in.readInt();
                 out.writeInt(1);
-                System.out.println(ruumikood);
+                //System.out.println(ruumikood);
             }
 
             // Muutujate ette valmistamine

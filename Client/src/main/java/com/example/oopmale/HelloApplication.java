@@ -7,15 +7,32 @@ import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
+import java.io.*;
+
 public class HelloApplication extends Application {
 
     @Override
-    public void start(Stage stage) {
+    public void start(Stage stage) throws IOException {
 
         // Mängu alguse stseen
 
-        TextField ipVäli = new TextField("localhost");
-        TextField portVäli = new TextField("1337");
+        String defaultIP;
+        String defaultPort;
+        final String password;
+
+        if (new File("client_setup.txt").exists()) {
+            BufferedReader br = new BufferedReader(new FileReader("client_setup.txt"));
+            defaultIP = br.readLine().split("=")[1].strip();
+            defaultPort = br.readLine().split("=")[1].strip();
+            password = br.readLine().split("=")[1].strip();
+        } else {
+            defaultIP = "";
+            defaultPort = "";
+            password = "";
+        }
+
+        TextField ipVäli = new TextField(defaultIP);
+        TextField portVäli = new TextField(defaultPort);
         TextField ruumikoodiVäli = new TextField("ABCD");
         Label veateade = new Label();
         veateade.setStyle("-fx-text-fill: red;");
@@ -48,7 +65,7 @@ public class HelloApplication extends Application {
             String ruumiKood = ruumikoodiVäli.getText().trim();
             int port = Integer.parseInt(portVäli.getText().trim());
             String ip = ipVäli.getText().trim();
-            new Thread(UhendaServeriga.create(veateade, stage, ip, port, ruumiKood, botiVastu, algStseen)).start();
+            new Thread(UhendaServeriga.create(veateade, stage, ip, port, ruumiKood, botiVastu, algStseen, password)).start();
         });
     }
 }

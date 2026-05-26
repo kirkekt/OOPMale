@@ -1,10 +1,8 @@
 package org.server;
 
 
-import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.FileReader;
 import java.net.Socket;
 import java.util.List;
 import java.util.Map;
@@ -17,25 +15,33 @@ public class UhenduseLooja implements Runnable {
     private final Socket uhenduja;
     private final Map<String, List<Socket>> ruumid;
     private final Map<String, CountDownLatch> latchid;
+    private final String pass;
+    private final int botiSugavus;
 
-    public UhenduseLooja(Socket uhenduja, Map<String, List<Socket>> ruumid, Map<String, CountDownLatch> latchid) {
+    public UhenduseLooja(Socket uhenduja, Map<String, List<Socket>> ruumid, Map<String, CountDownLatch> latchid, String pass, int botiSugavus) {
         this.uhenduja = uhenduja;
         this.ruumid = ruumid;
         this.latchid = latchid;
+        this.pass = pass;
+        this.botiSugavus = botiSugavus;
     }
 
     @Override
     public void run() {
         try {
             DataInputStream in = new DataInputStream(uhenduja.getInputStream());
-            BufferedReader br = new BufferedReader(new FileReader("pass.txt"));
-            String pass = br.readLine().strip();
-            System.out.println(pass);
-            if (!in.readUTF().equals(pass)) uhenduja.close();
+            if (!pass.equals("none")) {
+                if (!in.readUTF().equals(pass)) {
+                    uhenduja.close();
+                    return;
+                }
+            } else {
+                in.readUTF();
+            }
             boolean bot = in.readBoolean();
 
             if (bot) {
-                Bot vastane = new ParemBotv1(5);
+                Bot vastane = new ParemBotv1(botiSugavus);
                 new Thread(new Mang(uhenduja, vastane.createSocket(), true), "Mang-vs-bot-" + mangVsBot++).start();
                 System.out.println("Algas " + mangVsBot + ". mäng boti vastu");
             } else {

@@ -1,17 +1,21 @@
 package org.server;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.List;
 import java.util.Map;
-import java.util.Scanner;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 
 public class Server {
     public static void main(String[] args) throws Exception {
 
-        int port = Integer.parseInt(new Scanner(System.in).nextLine());
+        BufferedReader br = new BufferedReader(new FileReader("server_setup.txt"));
+        String pass = br.readLine().split("=")[1].strip();
+        int port = Integer.parseInt(br.readLine().split("=")[1].strip());
+        int botiSugavus = Integer.parseInt(br.readLine().split("=")[1].strip());
 
         try (ServerSocket ss = new ServerSocket(port)) {
             System.out.println("Kuulan portil: " + port);
@@ -23,7 +27,7 @@ public class Server {
                 Socket uhenduja = ss.accept();
                 System.out.println("Keegi ühendub: " + uhenduja.getRemoteSocketAddress());
                     try {
-                        new Thread(new UhenduseLooja(uhenduja, ruumid, latchid)).start();
+                        new Thread(new UhenduseLooja(uhenduja, ruumid, latchid, pass, botiSugavus)).start();
                     } catch (Exception e) {
                         throw new RuntimeException("Klient feilis: " + e);
                     };
